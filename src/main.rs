@@ -1,10 +1,13 @@
 // This example shows off a more in-depth implementation of a game with `bevy_ecs_ldtk`.
 // Please run with `--release`.
 
-use bevy::prelude::*;
+use bevy::{prelude::*, window::WindowResolution};
 use bevy_ecs_ldtk::prelude::*;
 
 use bevy_rapier2d::prelude::*;
+
+pub const WINDOW_HEIGHT: usize = 720;
+pub const WINDOW_WIDTH: usize = 1080;
 
 mod camera;
 mod climbing;
@@ -21,7 +24,18 @@ mod walls;
 
 fn main() {
     App::new()
-        .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
+        .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()).set(WindowPlugin {
+            primary_window: Some(Window {
+                title: "The Seventh".to_string(),
+                resolution: WindowResolution::new(
+                    WINDOW_WIDTH as f32,
+                    WINDOW_HEIGHT as f32,
+                ),
+                resizable: false,
+                ..default()
+            }),
+            ..default()
+        }))
         .add_plugins((
             LdtkPlugin,
             RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0),
