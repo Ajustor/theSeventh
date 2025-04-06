@@ -56,15 +56,15 @@ jobs:
           name: wasm
           retention-days: 1
 
-      - name: Upload binaries to release
-        if: ${{ env.add_binaries_to_github_release == 'true' }}
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ${{ env.binary }}.zip
-          asset_name: ${{ env.binary }}-wasm-${{ steps.get_version.outputs.tag }}.zip
-          tag: ${{ github.ref }}
-          overwrite: true
+      # - name: Upload binaries to release
+      #   if: ${{ env.add_binaries_to_github_release == 'true' }}
+      #   uses: svenstaro/upload-release-action@v2
+      #   with:
+      #     repo_token: ${{ secrets.GITHUB_TOKEN }}
+      #     file: ${{ env.binary }}.zip
+      #     asset_name: ${{ env.binary }}-wasm-${{ steps.get_version.outputs.tag }}.zip
+      #     tag: ${{ github.ref }}
+      #     overwrite: true
 
   # Build for Linux
   release-linux:
@@ -105,15 +105,15 @@ jobs:
           name: linux
           retention-days: 1
 
-      - name: Upload binaries to release
-        if: ${{ env.add_binaries_to_github_release == 'true' }}
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ${{ env.binary }}.zip
-          asset_name: ${{ env.binary }}-linux-${{ steps.get_version.outputs.tag }}.zip
-          tag: ${{ github.ref }}
-          overwrite: true
+      # - name: Upload binaries to release
+      #   if: ${{ env.add_binaries_to_github_release == 'true' }}
+      #   uses: svenstaro/upload-release-action@v2
+      #   with:
+      #     repo_token: ${{ secrets.GITHUB_TOKEN }}
+      #     file: ${{ env.binary }}.zip
+      #     asset_name: ${{ env.binary }}-linux-${{ steps.get_version.outputs.tag }}.zip
+      #     tag: ${{ github.ref }}
+      #     overwrite: true
 
   # Build for Windows
   release-windows:
@@ -151,15 +151,15 @@ jobs:
           name: windows
           retention-days: 1
 
-      - name: Upload binaries to release
-        if: ${{ env.add_binaries_to_github_release == 'true' }}
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ${{ env.binary }}.zip
-          asset_name: ${{ env.binary }}-windows-${{ steps.get_version.outputs.tag }}.zip
-          tag: ${{ github.ref }}
-          overwrite: true
+      # - name: Upload binaries to release
+      #   if: ${{ env.add_binaries_to_github_release == 'true' }}
+      #   uses: svenstaro/upload-release-action@v2
+      #   with:
+      #     repo_token: ${{ secrets.GITHUB_TOKEN }}
+      #     file: ${{ env.binary }}.zip
+      #     asset_name: ${{ env.binary }}-windows-${{ steps.get_version.outputs.tag }}.zip
+      #     tag: ${{ github.ref }}
+      #     overwrite: true
 
   # Build for MacOS x86_64
   release-macOS-intel:
@@ -197,15 +197,15 @@ jobs:
           name: macOS-intel
           retention-days: 1
 
-      - name: Upload binaries to release
-        if: ${{ env.add_binaries_to_github_release == 'true' }}
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file:  ${{ env.binary }}-macOS-intel.dmg
-          asset_name: ${{ env.binary }}-macOS-intel-${{ steps.get_version.outputs.tag }}.dmg
-          tag: ${{ github.ref }}
-          overwrite: true
+      # - name: Upload binaries to release
+      #   if: ${{ env.add_binaries_to_github_release == 'true' }}
+      #   uses: svenstaro/upload-release-action@v2
+      #   with:
+      #     repo_token: ${{ secrets.GITHUB_TOKEN }}
+      #     file:  ${{ env.binary }}-macOS-intel.dmg
+      #     asset_name: ${{ env.binary }}-macOS-intel-${{ steps.get_version.outputs.tag }}.dmg
+      #     tag: ${{ github.ref }}
+      #     overwrite: true
 
   # Build for MacOS Apple Silicon
   release-macOS-apple-silicon:
@@ -243,15 +243,15 @@ jobs:
           name: macOS-apple-silicon
           retention-days: 1
 
-      - name: Upload binaries to release
-        if: ${{ env.add_binaries_to_github_release == 'true' }}
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ${{ env.binary }}-macOS-apple-silicon.dmg
-          asset_name: ${{ env.binary }}-macOS-apple-silicon-${{ steps.get_version.outputs.tag }}.dmg
-          tag: ${{ github.ref }}
-          overwrite: true
+      # - name: Upload binaries to release
+      #   if: ${{ env.add_binaries_to_github_release == 'true' }}
+      #   uses: svenstaro/upload-release-action@v2
+      #   with:
+      #     repo_token: ${{ secrets.GITHUB_TOKEN }}
+      #     file: ${{ env.binary }}-macOS-apple-silicon.dmg
+      #     asset_name: ${{ env.binary }}-macOS-apple-silicon-${{ steps.get_version.outputs.tag }}.dmg
+      #     tag: ${{ github.ref }}
+      #     overwrite: true
 
   check-if-upload-to-itch-is-configured:
     runs-on: ubuntu-latest
