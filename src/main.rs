@@ -24,18 +24,22 @@ mod walls;
 
 fn main() {
     App::new()
-        .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()).set(WindowPlugin {
-            primary_window: Some(Window {
-                title: "The Seventh".to_string(),
-                resolution: WindowResolution::new(
-                    WINDOW_WIDTH as f32,
-                    WINDOW_HEIGHT as f32,
-                ),
-                resizable: false,
-                ..default()
-            }),
-            ..default()
-        }))
+        .add_plugins(
+            DefaultPlugins
+                .set(ImagePlugin::default_nearest())
+                .set(WindowPlugin {
+                    primary_window: Some(Window {
+                        title: "The Seventh".to_string(),
+                        resolution: WindowResolution::new(
+                            WINDOW_WIDTH as f32,
+                            WINDOW_HEIGHT as f32,
+                        ),
+                        resizable: false,
+                        ..default()
+                    }),
+                    ..default()
+                }),
+        )
         .add_plugins((
             LdtkPlugin,
             RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0),
