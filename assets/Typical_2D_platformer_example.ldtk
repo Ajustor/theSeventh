@@ -2168,7 +2168,10 @@
 							"height": 32,
 							"defUid": 86,
 							"px": [440,288],
-							"fieldInstances": [{ "__identifier": "locked", "__type": "Bool", "__value": false, "__tile": null, "defUid": 87, "realEditorValues": [null] }],
+							"fieldInstances": [{ "__identifier": "locked", "__type": "Bool", "__value": true, "__tile": null, "defUid": 87, "realEditorValues": [{
+								"id": "V_Bool",
+								"params": [ true ]
+							}] }],
 							"__worldX": 440,
 							"__worldY": 288
 						},
