@@ -45,12 +45,12 @@ impl From<&EntityInstance> for ColliderBundle {
                 ..Default::default()
             },
             "Door" => ColliderBundle {
-                collider: Collider::cuboid(8., 8.),
+                collider: Collider::cuboid(8., entity_instance.height as f32),
                 rigid_body: RigidBody::Fixed,
                 rotation_constraints,
                 gravity_scale: GravityScale(1.0),
                 friction: Friction::new(0.5),
-                density: ColliderMassProperties::Density(100.0),
+                // density: ColliderMassProperties::Density(100.0),
                 ..Default::default()
             },
             _ => ColliderBundle::default(),
