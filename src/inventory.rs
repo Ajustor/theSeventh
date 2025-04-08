@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
 
-use crate::player::Player;
+use crate::entities::player::Player;
 
 #[derive(Clone, Component, Debug, Eq, Default, PartialEq)]
 pub struct Inventory(Vec<String>);

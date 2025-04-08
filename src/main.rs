@@ -14,12 +14,12 @@ mod climbing;
 /// Bundles for auto-loading Rapier colliders as part of the level
 mod colliders;
 mod enemy;
+mod entities;
 /// Handles initialization and switching levels
 mod game_flow;
 mod ground_detection;
 mod inventory;
 mod misc_objects;
-mod player;
 mod walls;
 
 fn main() {
@@ -56,7 +56,7 @@ fn main() {
         .add_plugins(walls::WallPlugin)
         .add_plugins(ground_detection::GroundDetectionPlugin)
         .add_plugins(climbing::ClimbingPlugin)
-        .add_plugins(player::PlayerPlugin)
+        .add_plugins(entities::player::PlayerPlugin)
         .add_plugins(enemy::EnemyPlugin)
         .add_systems(Update, inventory::dbg_print_inventory)
         .add_systems(Update, camera::camera_fit_inside_current_level)

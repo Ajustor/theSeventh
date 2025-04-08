@@ -5,6 +5,13 @@ use bevy_rapier2d::dynamics::Velocity;
 use crate::{climbing::Climber, inventory::Inventory};
 use crate::{colliders::ColliderBundle, ground_detection::GroundDetection};
 
+#[derive(Debug, Clone, Copy, Default, Eq, PartialEq, Hash, States, Component)]
+pub enum Side {
+    #[default]
+    Right,
+    Left,
+}
+
 #[derive(Copy, Clone, Eq, PartialEq, Debug, Default, Component)]
 pub struct Player;
 
@@ -19,6 +26,7 @@ pub struct PlayerBundle {
     pub worldly: Worldly,
     pub climber: Climber,
     pub ground_detection: GroundDetection,
+    pub side: Side,
 
     // Build Items Component manually by using `impl From<&EntityInstance>`
     #[from_entity_instance]
@@ -31,13 +39,21 @@ pub struct PlayerBundle {
 
 pub fn player_movement(
     input: Res<ButtonInput<KeyCode>>,
-    mut query: Query<(&mut Velocity, &mut Climber, &GroundDetection), With<Player>>,
+    mut query: Query<(&mut Velocity, &mut Climber, &GroundDetection, &mut Side), With<Player>>,
 ) {
-    for (mut velocity, mut climber, ground_detection) in &mut query {
+    for (mut velocity, mut climber, ground_detection, mut side) in &mut query {
         let right = if input.pressed(KeyCode::KeyD) { 1. } else { 0. };
         let left = if input.pressed(KeyCode::KeyA) { 1. } else { 0. };
 
         velocity.linvel.x = (right - left) * 200.;
+
+        if right > 0. || left > 0. {
+            if right > 0. {
+                *side = Side::Right;
+            } else {
+                *side = Side::Left;
+            }
+        }
 
         if climber.intersecting_climbables.is_empty() {
             climber.climbing = false;
@@ -59,11 +75,30 @@ pub fn player_movement(
     }
 }
 
+pub fn player_actions(
+    input: Res<ButtonInput<KeyCode>>,
+    mut query: Query<(&Climber, &GroundDetection, &Side), With<Player>>,
+) {
+    for (climber, ground_detection, side) in &mut query {
+        if climber.climbing {
+            return;
+        }
+
+        if input.just_pressed(KeyCode::KeyO) && ground_detection.on_ground {
+            dbg!("Open element");
+        }
+
+        if input.just_pressed(KeyCode::KeyK) {
+            dbg!(format!("Attack on {:?}", side));
+        }
+    }
+}
+
 pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, player_movement)
+        app.add_systems(Update, (player_movement, player_actions))
             .register_ldtk_entity::<PlayerBundle>("Player");
     }
 }
