@@ -4,8 +4,8 @@
 use bevy::{prelude::*, window::WindowResolution};
 use bevy_ecs_ldtk::prelude::*;
 
+use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_rapier2d::prelude::*;
-use gui::player_interface::PlayerInterfacePlugin;
 
 pub const WINDOW_HEIGHT: usize = 720;
 pub const WINDOW_WIDTH: usize = 1080;
@@ -72,5 +72,6 @@ fn main() {
         .add_systems(Update, inventory::dbg_print_inventory)
         .add_systems(Update, camera::camera_fit_inside_current_level)
         .add_plugins(misc_objects::MiscObjectsPlugin)
+        .add_plugins(WorldInspectorPlugin::new())
         .run();
 }

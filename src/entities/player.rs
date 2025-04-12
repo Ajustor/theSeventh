@@ -30,6 +30,7 @@ pub struct PlayerBundle {
     pub climber: Climber,
     pub ground_detection: GroundDetection,
     pub side: Side,
+    #[from_entity_instance]
     pub stats: Stats,
 
     // Build Items Component manually by using `impl From<&EntityInstance>`
@@ -103,7 +104,6 @@ pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Update, (player_movement, player_actions))
-            .register_ldtk_entity::<PlayerBundle>("Player")
-            .add_plugins(PlayerInterfacePlugin);
+            .register_ldtk_entity::<PlayerBundle>("Player");
     }
 }

@@ -1,3 +1,5 @@
+use std::ptr::null;
+
 use bevy::{
     color::palettes::css::{RED, WHITE},
     core_pipeline::bloom::{self, Bloom},
@@ -5,7 +7,10 @@ use bevy::{
 };
 
 use crate::{
-    entities::{base, player::Player},
+    entities::{
+        base::{self, Stats},
+        player::Player,
+    },
     GameState,
 };
 
@@ -55,16 +60,8 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.insert_resource(PlayerInterface { container });
 }
 
-fn menu(
-    player_stats: Query<&base::Stats, With<Player>>,
-    mut bar_node: Single<&mut Node, With<Bar>>,
-) {
-    let stats = match player_stats.get_single() {
-        Err(error) => panic!("{:?}", error),
-        Ok(stats) => stats,
-    };
-
-    bar_node.width = Val::Percent(((stats.life / stats.max_life) * 100) as f32);
+fn menu(player_stats: Single<&Stats, With<Player>>, mut bar_node: Single<&mut Node, With<Bar>>) {
+    bar_node.width = Val::Percent(((player_stats.life / player_stats.max_life) * 100) as f32);
 }
 
 fn cleanup(mut commands: Commands, player_interface: Res<PlayerInterface>) {
