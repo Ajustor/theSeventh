@@ -104,6 +104,7 @@ pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Update, (player_movement, player_actions))
-            .register_ldtk_entity::<PlayerBundle>("Player");
+            .register_ldtk_entity::<PlayerBundle>("Player")
+            .add_plugins(PlayerInterfacePlugin);
     }
 }

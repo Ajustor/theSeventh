@@ -19,23 +19,28 @@ struct PlayerInterface {
     container: Entity,
 }
 
-fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
+fn setup(mut commands: Commands) {
     let container = commands
         .spawn(Node {
             // center button
             width: Val::Percent(100.),
             height: Val::Percent(100.),
+            top: Val::Px(0.),
+            left: Val::Px(0.),
+            flex_direction: FlexDirection::Column,
             justify_content: JustifyContent::SpaceBetween,
             align_items: AlignItems::Center,
             ..default()
         })
         .with_children(|parent| {
-            let mut life_container = parent
+            parent
                 .spawn((
                     Node {
-                        border: UiRect::all(Val::Px(5.)),
-                        width: Val::Px(150.),
-                        height: Val::Px(65.),
+                        border: UiRect::all(Val::Px(1.)),
+                        width: Val::Px(200.),
+                        height: Val::Px(30.),
+                        left: Val::Px(2.),
+                        top: Val::Px(5.),
                         // vertically center child text
                         align_items: AlignItems::Baseline,
                         ..default()
@@ -45,11 +50,17 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
                 .with_child((
                     Node {
                         width: Val::Percent(100.),
-                        height: Val::Px(65.),
+                        height: Val::Percent(100.),
                         ..default()
                     },
                     BackgroundColor(RED.into()),
                     Bar,
+                    Text::new(""),
+                    TextFont {
+                        font_size: 33.0,
+                        ..default()
+                    },
+                    TextColor(Color::srgb(0.9, 0.9, 0.9)),
                 ));
         })
         .id();
@@ -57,8 +68,14 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.insert_resource(PlayerInterface { container });
 }
 
-fn menu(player_stats: Single<&Stats, With<Player>>, mut bar_node: Single<&mut Node, With<Bar>>) {
-    bar_node.width = Val::Percent(((player_stats.life / player_stats.max_life) * 100) as f32);
+fn menu(
+    player_stats: Query<&Stats, With<Player>>,
+    mut bar: Single<(&mut Node, &mut Text), With<Bar>>,
+) {
+    for stats in player_stats.iter() {
+        bar.0.width = Val::Percent(((stats.life / stats.max_life) * 100) as f32);
+        bar.1 .0 = format!("{}/{}", stats.life, stats.max_life);
+    }
 }
 
 fn cleanup(mut commands: Commands, player_interface: Res<PlayerInterface>) {
