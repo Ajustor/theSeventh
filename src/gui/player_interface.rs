@@ -55,7 +55,7 @@ fn setup(mut commands: Commands) {
                     },
                     BackgroundColor(RED.into()),
                     Bar,
-                    Text::new(""),
+                    TextSpan::default(),
                     TextFont {
                         font_size: 33.0,
                         ..default()
@@ -70,11 +70,12 @@ fn setup(mut commands: Commands) {
 
 fn menu(
     player_stats: Query<&Stats, With<Player>>,
-    mut bar: Single<(&mut Node, &mut Text), With<Bar>>,
+    mut bar: Single<&mut Node, With<Bar>>,
+    mut text: Single<&mut TextSpan, With<Bar>>,
 ) {
     for stats in player_stats.iter() {
-        bar.0.width = Val::Percent(((stats.life / stats.max_life) * 100) as f32);
-        bar.1 .0 = format!("{}/{}", stats.life, stats.max_life);
+        bar.width = Val::Percent(((stats.life / stats.max_life) * 100) as f32);
+        **text = format!("{}/{}", stats.life, stats.max_life).into();
     }
 }
 
