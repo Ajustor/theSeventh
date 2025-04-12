@@ -1673,9 +1673,9 @@
 				{
 					"identifier": "life",
 					"doc": null,
-					"__type": "Float",
+					"__type": "Int",
 					"uid": 108,
-					"type": "F_Float",
+					"type": "F_Int",
 					"isArray": false,
 					"canBeNull": false,
 					"arrayMinLength": null,
@@ -1710,9 +1710,9 @@
 				{
 					"identifier": "max_life",
 					"doc": null,
-					"__type": "Float",
+					"__type": "Int",
 					"uid": 109,
-					"type": "F_Float",
+					"type": "F_Int",
 					"isArray": false,
 					"canBeNull": false,
 					"arrayMinLength": null,
@@ -2156,8 +2156,8 @@
 									"id": "V_String",
 									"params": ["Boots"]
 								} ] },
-								{ "__identifier": "life", "__type": "Float", "__value": 10, "__tile": null, "defUid": 108, "realEditorValues": [] },
-								{ "__identifier": "max_life", "__type": "Float", "__value": 10, "__tile": null, "defUid": 109, "realEditorValues": [] }
+								{ "__identifier": "life", "__type": "Int", "__value": null, "__tile": null, "defUid": 108, "realEditorValues": [null] },
+								{ "__identifier": "max_life", "__type": "Int", "__value": null, "__tile": null, "defUid": 109, "realEditorValues": [null] }
 							],
 							"__worldX": 184,
 							"__worldY": 208
