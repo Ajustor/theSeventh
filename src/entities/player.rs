@@ -2,8 +2,11 @@ use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
 use bevy_rapier2d::dynamics::Velocity;
 
+use crate::gui::player_interface::PlayerInterfacePlugin;
 use crate::{climbing::Climber, inventory::Inventory};
 use crate::{colliders::ColliderBundle, ground_detection::GroundDetection};
+
+use super::base::Stats;
 
 #[derive(Debug, Clone, Copy, Default, Eq, PartialEq, Hash, States, Component)]
 pub enum Side {
@@ -27,6 +30,7 @@ pub struct PlayerBundle {
     pub climber: Climber,
     pub ground_detection: GroundDetection,
     pub side: Side,
+    pub stats: Stats,
 
     // Build Items Component manually by using `impl From<&EntityInstance>`
     #[from_entity_instance]
@@ -99,6 +103,7 @@ pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Update, (player_movement, player_actions))
-            .register_ldtk_entity::<PlayerBundle>("Player");
+            .register_ldtk_entity::<PlayerBundle>("Player")
+            .add_plugins(PlayerInterfacePlugin);
     }
 }

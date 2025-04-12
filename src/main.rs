@@ -5,6 +5,7 @@ use bevy::{prelude::*, window::WindowResolution};
 use bevy_ecs_ldtk::prelude::*;
 
 use bevy_rapier2d::prelude::*;
+use gui::player_interface::PlayerInterfacePlugin;
 
 pub const WINDOW_HEIGHT: usize = 720;
 pub const WINDOW_WIDTH: usize = 1080;
@@ -18,9 +19,18 @@ mod entities;
 /// Handles initialization and switching levels
 mod game_flow;
 mod ground_detection;
+mod gui;
 mod inventory;
 mod misc_objects;
 mod walls;
+
+#[derive(Debug, Clone, Copy, Default, Eq, PartialEq, Hash, States)]
+enum GameState {
+    Menu,
+    #[default]
+    InGame,
+    Inventory,
+}
 
 fn main() {
     App::new()
@@ -40,6 +50,7 @@ fn main() {
                     ..default()
                 }),
         )
+        .init_state::<GameState>()
         .add_plugins((
             LdtkPlugin,
             RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0),
