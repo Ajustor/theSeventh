@@ -1,8 +1,5 @@
-use std::ptr::null;
-
 use bevy::{
     color::palettes::css::{RED, WHITE},
-    core_pipeline::bloom::{self, Bloom},
     prelude::*,
 };
 

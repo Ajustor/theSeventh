@@ -6,6 +6,7 @@ use bevy_ecs_ldtk::prelude::*;
 
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_rapier2d::prelude::*;
+use engine::damage::DamagePlugin;
 
 pub const WINDOW_HEIGHT: usize = 720;
 pub const WINDOW_WIDTH: usize = 1080;
@@ -15,6 +16,7 @@ mod climbing;
 /// Bundles for auto-loading Rapier colliders as part of the level
 mod colliders;
 mod enemy;
+mod engine;
 mod entities;
 /// Handles initialization and switching levels
 mod game_flow;
@@ -73,5 +75,6 @@ fn main() {
         .add_systems(Update, camera::camera_fit_inside_current_level)
         .add_plugins(misc_objects::MiscObjectsPlugin)
         .add_plugins(WorldInspectorPlugin::new())
+        .add_plugins(DamagePlugin)
         .run();
 }
