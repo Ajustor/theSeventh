@@ -2156,8 +2156,8 @@
 									"id": "V_String",
 									"params": ["Boots"]
 								} ] },
-								{ "__identifier": "life", "__type": "Int", "__value": null, "__tile": null, "defUid": 108, "realEditorValues": [null] },
-								{ "__identifier": "max_life", "__type": "Int", "__value": null, "__tile": null, "defUid": 109, "realEditorValues": [null] }
+								{ "__identifier": "life", "__type": "Int", "__value": 10, "__tile": null, "defUid": 108, "realEditorValues": [{ "id": "V_Int", "params": [10] }] },
+								{ "__identifier": "max_life", "__type": "Int", "__value": 10, "__tile": null, "defUid": 109, "realEditorValues": [{ "id": "V_Int", "params": [10] }] }
 							],
 							"__worldX": 184,
 							"__worldY": 208
