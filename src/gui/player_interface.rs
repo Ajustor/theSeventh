@@ -7,10 +7,7 @@ use bevy::{
 };
 
 use crate::{
-    entities::{
-        base::{self, Stats},
-        player::Player,
-    },
+    entities::{player::Player, stats::Stats},
     GameState,
 };
 

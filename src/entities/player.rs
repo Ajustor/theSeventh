@@ -6,7 +6,7 @@ use crate::gui::player_interface::PlayerInterfacePlugin;
 use crate::{climbing::Climber, inventory::Inventory};
 use crate::{colliders::ColliderBundle, ground_detection::GroundDetection};
 
-use super::base::Stats;
+use super::stats::Stats;
 
 #[derive(Debug, Clone, Copy, Default, Eq, PartialEq, Hash, States, Component)]
 pub enum Side {

@@ -10,12 +10,14 @@ pub struct Stats {
 impl From<&EntityInstance> for Stats {
     fn from(entity_instance: &EntityInstance) -> Self {
         Stats {
-            life: *entity_instance
+            life: entity_instance
                 .get_int_field("life")
-                .expect("life stat must be present"),
-            max_life: *entity_instance
+                .expect("life stat must be present")
+                .clone(),
+            max_life: entity_instance
                 .get_int_field("max_life")
-                .expect("life stat must be present"),
+                .expect("max life stat must be present")
+                .clone(),
         }
     }
 }
