@@ -47,29 +47,31 @@ fn setup(mut commands: Commands) {
                     BorderColor(WHITE.into()),
                 ))
                 .with_children(|parent| {
-                    parent
-                        .spawn((
-                            Node {
-                                width: Val::Percent(100.),
-                                height: Val::Percent(100.),
-                                justify_content: JustifyContent::Center,
-                                // vertically center child text
-                                align_items: AlignItems::Center,
-                                ..default()
-                            },
-                            BackgroundColor(RED.into()),
-                            // horizontally center child text
-                            Bar,
-                        ))
-                        .with_child((
-                            Text::new("Life points"),
-                            TextFont {
-                                font_size: 10.0,
-                                ..default()
-                            },
-                            TextColor(Color::srgb(0.9, 0.9, 0.9)),
-                            LifeBarText,
-                        ));
+                    parent.spawn((
+                        Node {
+                            width: Val::Percent(100.),
+                            height: Val::Percent(100.),
+
+                            ..default()
+                        },
+                        BackgroundColor(RED.into()),
+                        Bar,
+                    ));
+                    parent.spawn((
+                        Node {
+                            position_type: PositionType::Absolute,
+                            top: Val::Percent(25.),
+                            left: Val::Auto,
+                            ..default()
+                        },
+                        Text::new("Life points"),
+                        TextFont {
+                            font_size: 10.0,
+                            ..default()
+                        },
+                        TextColor(Color::srgb(0.9, 0.9, 0.9)),
+                        LifeBarText,
+                    ));
                 });
         })
         .id();
