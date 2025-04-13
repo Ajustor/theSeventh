@@ -17,16 +17,3 @@ impl From<&EntityInstance> for Inventory {
         )
     }
 }
-
-/// Prints the contents of the player's inventory.
-pub fn dbg_print_inventory(
-    input: Res<ButtonInput<KeyCode>>,
-    mut query: Query<(&Inventory, &EntityInstance), With<Player>>,
-) {
-    for (items, entity_instance) in &mut query {
-        if input.just_pressed(KeyCode::KeyP) {
-            dbg!(&items);
-            dbg!(&entity_instance);
-        }
-    }
-}

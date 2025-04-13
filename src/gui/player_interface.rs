@@ -83,8 +83,8 @@ fn menu(
     mut text: Single<&mut Text, With<LifeBarText>>,
 ) {
     for stats in player_stats.iter() {
-        bar.width = Val::Percent((stats.life as f32 / stats.max_life as f32) * 100 as f32);
-        text.0 = format!("{}/{}", stats.life, stats.max_life).into();
+        bar.width = Val::Percent((stats.life as f32 / stats.max_life as f32) * 100_f32);
+        text.0 = format!("{}/{}", stats.life, stats.max_life);
     }
 }
 

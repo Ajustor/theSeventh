@@ -28,10 +28,10 @@ mod walls;
 
 #[derive(Debug, Clone, Copy, Default, Eq, PartialEq, Hash, States)]
 enum GameState {
-    Menu,
+    _Menu,
     #[default]
     InGame,
-    Inventory,
+    _Inventory,
 }
 
 fn main() {

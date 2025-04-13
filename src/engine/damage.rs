@@ -16,8 +16,14 @@ struct FlashingTimer {
 fn handle_collisions(
     mut commands: Commands,
     mut collision_events: EventReader<CollisionEvent>,
-    mut player_query: Query<(Entity, &mut Velocity, &mut Stats), (With<Player>, Without<Enemy>)>,
-    enemy_query: Query<(Entity, &Stats), (With<Enemy>, Without<Player>)>,
+    #[allow(clippy::type_complexity)] mut player_query: Query<
+        (Entity, &mut Velocity, &mut Stats),
+        (With<Player>, Without<Enemy>),
+    >,
+    #[allow(clippy::type_complexity)] enemy_query: Query<
+        (Entity, &Stats),
+        (With<Enemy>, Without<Player>),
+    >,
 ) {
     for collision_event in collision_events.read() {
         match collision_event {
@@ -36,7 +42,7 @@ fn handle_collisions(
                 if let Some((entity, _, mut stats)) = player_entity {
                     if let Some((_, enemy_stats)) = enemy_entity {
                         // Logique pour infliger des dégâts au joueur
-                        stats.life = stats.life - enemy_stats.damage;
+                        stats.life -= enemy_stats.damage;
                         commands.entity(entity).insert(FlashingTimer {
                             timer: Timer::new(Duration::from_millis(500), TimerMode::Once),
                         });
