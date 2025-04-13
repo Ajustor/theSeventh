@@ -1,6 +1,6 @@
 // This example shows off a more in-depth implementation of a game with `bevy_ecs_ldtk`.
 // Please run with `--release`.
-#[allow(clippy::type_complexity)]
+#![allow(clippy::type_complexity)]
 use bevy::{prelude::*, window::WindowResolution};
 use bevy_ecs_ldtk::prelude::*;
 
