@@ -71,7 +71,7 @@ fn main() {
         .add_plugins(climbing::ClimbingPlugin)
         .add_plugins(entities::player::PlayerPlugin)
         .add_plugins(enemy::EnemyPlugin)
-        .add_systems(Update, inventory::dbg_print_inventory)
+        // .add_systems(Update, inventory::dbg_print_inventory)
         .add_systems(Update, camera::camera_fit_inside_current_level)
         .add_plugins(misc_objects::MiscObjectsPlugin)
         .add_plugins(WorldInspectorPlugin::new())

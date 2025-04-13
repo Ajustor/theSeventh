@@ -11,6 +11,9 @@ use crate::{
 #[derive(Component)]
 struct Bar;
 
+#[derive(Component)]
+struct LifeBarText;
+
 #[derive(Resource)]
 struct PlayerInterface {
     container: Entity,
@@ -38,27 +41,36 @@ fn setup(mut commands: Commands) {
                         height: Val::Px(30.),
                         left: Val::Px(2.),
                         top: Val::Px(5.),
-                        // vertically center child text
                         align_items: AlignItems::Baseline,
                         ..default()
                     },
                     BorderColor(WHITE.into()),
                 ))
-                .with_child((
-                    Node {
-                        width: Val::Percent(100.),
-                        height: Val::Percent(100.),
-                        ..default()
-                    },
-                    BackgroundColor(RED.into()),
-                    Bar,
-                    TextSpan::default(),
-                    TextFont {
-                        font_size: 33.0,
-                        ..default()
-                    },
-                    TextColor(Color::srgb(0.9, 0.9, 0.9)),
-                ));
+                .with_children(|parent| {
+                    parent
+                        .spawn((
+                            Node {
+                                width: Val::Percent(100.),
+                                height: Val::Percent(100.),
+                                justify_content: JustifyContent::Center,
+                                // vertically center child text
+                                align_items: AlignItems::Center,
+                                ..default()
+                            },
+                            BackgroundColor(RED.into()),
+                            // horizontally center child text
+                            Bar,
+                        ))
+                        .with_child((
+                            Text::new("Life points"),
+                            TextFont {
+                                font_size: 10.0,
+                                ..default()
+                            },
+                            TextColor(Color::srgb(0.9, 0.9, 0.9)),
+                            LifeBarText,
+                        ));
+                });
         })
         .id();
 
@@ -68,11 +80,11 @@ fn setup(mut commands: Commands) {
 fn menu(
     player_stats: Query<&Stats, With<Player>>,
     mut bar: Single<&mut Node, With<Bar>>,
-    mut text: Single<&mut TextSpan, With<Bar>>,
+    mut text: Single<&mut Text, With<LifeBarText>>,
 ) {
     for stats in player_stats.iter() {
-        bar.width = Val::Percent(((stats.life / stats.max_life) * 100) as f32);
-        **text = format!("{}/{}", stats.life, stats.max_life).into();
+        bar.width = Val::Percent((stats.life as f32 / stats.max_life as f32) * 100 as f32);
+        text.0 = format!("{}/{}", stats.life, stats.max_life).into();
     }
 }
 
