@@ -17,11 +17,10 @@ impl From<&EntityInstance> for Stats {
         if let Ok(damage_stat) = entity_instance.get_int_field("damage") {
             damage = *damage_stat;
         }
-        if let Ok(life_stat) = entity_instance.get_int_field("life") {
-            life = *life_stat;
-        }
+
         if let Ok(max_life_stat) = entity_instance.get_int_field("max_life") {
             max_life = *max_life_stat;
+            life = *max_life_stat;
         }
 
         Stats {

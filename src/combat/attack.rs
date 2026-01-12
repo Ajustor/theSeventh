@@ -1,7 +1,10 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
-use crate::entities::player::{Player, Side};
+use crate::{
+    engine::damage::DamagedEvent,
+    entities::player::{Invincibility, Player, PlayerDamagedEvent, Side},
+};
 
 /// Marqueur pour la hitbox d'attaque
 #[derive(Component)]
@@ -53,7 +56,10 @@ pub fn handle_attack_input(
     mut commands: Commands,
 ) {
     for (player_entity, transform, side, mut attack_state) in query.iter_mut() {
-        if input.just_pressed(KeyCode::KeyK) && attack_state.can_attack && !attack_state.is_attacking {
+        if input.just_pressed(KeyCode::KeyK)
+            && attack_state.can_attack
+            && !attack_state.is_attacking
+        {
             attack_state.is_attacking = true;
             attack_state.can_attack = false;
             attack_state.attack_timer.reset();
@@ -68,7 +74,7 @@ pub fn handle_attack_input(
             // Créer la hitbox d'attaque
             commands.spawn((
                 AttackHitbox {
-                    damage: 25,
+                    damage: 1,
                     owner: player_entity,
                 },
                 Transform::from_translation(Vec3::new(
@@ -96,10 +102,10 @@ pub fn update_attack_state(
     for mut attack_state in query.iter_mut() {
         if attack_state.is_attacking {
             attack_state.attack_timer.tick(time.delta());
-            
+
             if attack_state.attack_timer.finished() {
                 attack_state.is_attacking = false;
-                
+
                 // Supprimer toutes les hitbox d'attaque
                 for hitbox_entity in hitbox_query.iter() {
                     commands.entity(hitbox_entity).despawn();
@@ -109,7 +115,7 @@ pub fn update_attack_state(
 
         if !attack_state.can_attack {
             attack_state.cooldown_timer.tick(time.delta());
-            
+
             if attack_state.cooldown_timer.finished() {
                 attack_state.can_attack = true;
             }
@@ -119,8 +125,11 @@ pub fn update_attack_state(
 
 pub fn detect_attack_hits(
     mut collision_events: EventReader<CollisionEvent>,
-    hitbox_query: Query<&AttackHitbox>,
+    hitbox_query: Query<(&AttackHitbox, &Transform)>,
+    player_query: Query<&Transform, (With<Player>, Without<Invincibility>)>,
     mut hit_events: EventWriter<AttackHitEvent>,
+    mut player_damaged_events: EventWriter<PlayerDamagedEvent>,
+    mut damage_events: EventWriter<DamagedEvent>,
 ) {
     for event in collision_events.read() {
         if let CollisionEvent::Started(entity1, entity2, _) = event {
@@ -133,7 +142,7 @@ pub fn detect_attack_hits(
                 continue;
             };
 
-            if let Ok(hitbox) = hitbox_query.get(hitbox_entity) {
+            if let Ok((hitbox, hitbox_transform)) = hitbox_query.get(hitbox_entity) {
                 // Ne pas se toucher soi-même
                 if other_entity != hitbox.owner {
                     hit_events.send(AttackHitEvent {
@@ -141,7 +150,34 @@ pub fn detect_attack_hits(
                         target: other_entity,
                         damage: hitbox.damage,
                     });
-                    info!("Attaque a touché {:?} pour {} dégâts", other_entity, hitbox.damage);
+
+                    // Si la cible est le joueur, envoyer l'événement de dégâts
+                    if let Ok(player_transform) = player_query.get(other_entity) {
+                        // Calculer la direction du knockback (du hitbox vers le joueur)
+                        let knockback_direction = (player_transform.translation
+                            - hitbox_transform.translation)
+                            .truncate()
+                            .normalize_or_zero();
+
+                        player_damaged_events.send(PlayerDamagedEvent {
+                            player_entity: other_entity,
+                            damage: hitbox.damage,
+                            knockback_direction,
+                        });
+                    } else {
+                        // Pour les autres entités, on pourrait ajouter un système similaire
+                        // pour gérer leurs dégâts ici.
+                        damage_events.send(DamagedEvent {
+                            source: hitbox.owner,
+                            target: other_entity,
+                            amount: hitbox.damage,
+                        });
+                    }
+
+                    info!(
+                        "Attaque a touché {:?} pour {} dégâts",
+                        other_entity, hitbox.damage
+                    );
                 }
             }
         }
@@ -153,11 +189,15 @@ pub struct AttackPlugin;
 impl Plugin for AttackPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<AttackHitEvent>()
-            .add_systems(Update, (
-                setup_player_attack,
-                handle_attack_input,
-                update_attack_state,
-                detect_attack_hits,
-            ));
+            .add_event::<DamagedEvent>()
+            .add_systems(
+                Update,
+                (
+                    setup_player_attack,
+                    handle_attack_input,
+                    update_attack_state,
+                    detect_attack_hits,
+                ),
+            );
     }
 }

@@ -1,9 +1,7 @@
 use bevy::prelude::*;
 use bevy_ecs_ldtk::{prelude::*, utils::ldtk_pixel_coords_to_translation_pivoted};
 use bevy_rapier2d::dynamics::Velocity;
-use bevy_rapier2d::prelude::*;
 
-use crate::combat::health::Health;
 use crate::{colliders::ColliderBundle, entities::stats::Stats};
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug, Default, Component)]

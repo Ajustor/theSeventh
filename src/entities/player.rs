@@ -42,6 +42,48 @@ pub struct PlayerBundle {
     entity_instance: EntityInstance,
 }
 
+/// Composant pour gérer l'invincibilité temporaire après avoir pris des dégâts
+#[derive(Component)]
+pub struct Invincibility {
+    pub timer: Timer,
+    pub blink_timer: Timer,
+    pub visible: bool,
+}
+
+impl Default for Invincibility {
+    fn default() -> Self {
+        Self {
+            timer: Timer::from_seconds(3.0, TimerMode::Once),
+            blink_timer: Timer::from_seconds(0.1, TimerMode::Repeating),
+            visible: true,
+        }
+    }
+}
+
+/// Événement déclenché quand le joueur prend des dégâts
+#[derive(Event)]
+pub struct PlayerDamagedEvent {
+    pub player_entity: Entity,
+    pub damage: i32,
+    pub knockback_direction: Vec2,
+}
+
+/// Composant pour gérer le recul (knockback)
+#[derive(Component)]
+pub struct Knockback {
+    pub velocity: Vec2,
+    pub timer: Timer,
+}
+
+impl Knockback {
+    pub fn new(direction: Vec2, force: f32) -> Self {
+        Self {
+            velocity: direction.normalize_or_zero() * force,
+            timer: Timer::from_seconds(0.2, TimerMode::Once),
+        }
+    }
+}
+
 pub fn player_movement(
     input: Res<ButtonInput<KeyCode>>,
     mut query: Query<(&mut Velocity, &mut Climber, &GroundDetection, &mut Side), With<Player>>,
@@ -96,6 +138,18 @@ pub fn player_actions(
     }
 }
 
+pub fn check_player_death(
+    query: Query<&Stats, With<Player>>,
+    mut next_state: ResMut<NextState<GameState>>,
+) {
+    for stats in query.iter() {
+        if stats.life <= 0 {
+            info!("Le joueur est mort ! Game Over");
+            next_state.set(GameState::GameOver);
+        }
+    }
+}
+
 pub fn player_death_system(
     mut commands: Commands,
     player_query: Query<(Entity, &Stats), With<Player>>,
@@ -120,6 +174,109 @@ impl Plugin for PlayerPlugin {
         )
         .register_ldtk_entity::<PlayerBundle>("Player")
         .add_plugins(PlayerInterfacePlugin)
-        .add_plugins(PlayerAnimationPlugin);
+        .add_plugins(PlayerAnimationPlugin)
+        .add_event::<PlayerDamagedEvent>()
+        .add_systems(
+            Update,
+            (
+                handle_player_damaged,
+                update_invincibility,
+                update_knockback,
+                update_invincibility_blink,
+            )
+                .run_if(in_state(GameState::InGame)),
+        )
+        .add_systems(
+            Update,
+            check_player_death.run_if(in_state(GameState::InGame)),
+        );
+    }
+}
+
+/// Système qui gère les dégâts reçus par le joueur
+pub fn handle_player_damaged(
+    mut commands: Commands,
+    mut damage_events: EventReader<PlayerDamagedEvent>,
+    mut player_query: Query<(Entity, &mut Stats, Option<&Invincibility>), With<Player>>,
+) {
+    for event in damage_events.read() {
+        if let Ok((entity, mut stats, invincibility)) = player_query.get_mut(event.player_entity) {
+            // Ignorer les dégâts si le joueur est invincible
+            if invincibility.is_some() {
+                continue;
+            }
+
+            // Appliquer les dégâts
+            stats.life -= event.damage;
+            info!(
+                "Joueur touché ! Vie restante: {}/{}",
+                stats.life, stats.max_life
+            );
+
+            // Ajouter l'invincibilité
+            commands.entity(entity).insert(Invincibility::default());
+
+            // Ajouter le knockback (recul)
+            let knockback_force = 300.0;
+            commands
+                .entity(entity)
+                .insert(Knockback::new(event.knockback_direction, knockback_force));
+        }
+    }
+}
+
+/// Système qui met à jour le timer d'invincibilité
+pub fn update_invincibility(
+    mut commands: Commands,
+    time: Res<Time>,
+    mut query: Query<(Entity, &mut Invincibility, &mut Sprite), With<Player>>,
+) {
+    for (entity, mut invincibility, mut sprite) in query.iter_mut() {
+        invincibility.timer.tick(time.delta());
+
+        if invincibility.timer.finished() {
+            // Retirer l'invincibilité et s'assurer que le sprite est visible
+            commands.entity(entity).remove::<Invincibility>();
+            sprite.color = Color::WHITE;
+            info!("Fin de l'invincibilité");
+        }
+    }
+}
+
+/// Système qui fait clignoter le joueur pendant l'invincibilité
+pub fn update_invincibility_blink(
+    time: Res<Time>,
+    mut query: Query<(&mut Invincibility, &mut Sprite), With<Player>>,
+) {
+    for (mut invincibility, mut sprite) in query.iter_mut() {
+        invincibility.blink_timer.tick(time.delta());
+
+        if invincibility.blink_timer.just_finished() {
+            invincibility.visible = !invincibility.visible;
+
+            if invincibility.visible {
+                sprite.color = Color::WHITE;
+            } else {
+                sprite.color = Color::srgba(1.0, 1.0, 1.0, 0.3);
+            }
+        }
+    }
+}
+
+/// Système qui applique le knockback (recul)
+pub fn update_knockback(
+    mut commands: Commands,
+    time: Res<Time>,
+    mut query: Query<(Entity, &mut Knockback, &mut Velocity), With<Player>>,
+) {
+    for (entity, mut knockback, mut velocity) in query.iter_mut() {
+        knockback.timer.tick(time.delta());
+
+        if knockback.timer.finished() {
+            commands.entity(entity).remove::<Knockback>();
+        } else {
+            // Appliquer la vélocité de recul
+            velocity.linvel = knockback.velocity;
+        }
     }
 }

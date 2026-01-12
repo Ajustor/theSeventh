@@ -22,6 +22,7 @@ mod engine;
 mod entities;
 /// Handles initialization and switching levels
 mod game_flow;
+mod game_over;
 mod ground_detection;
 mod gui;
 mod inventory;
@@ -34,7 +35,7 @@ pub enum GameState {
     #[default]
     Menu,
     InGame,
-    Inventory,
+    _Inventory,
     GameOver,
 }
 
@@ -82,5 +83,6 @@ fn main() {
         .add_plugins(WorldInspectorPlugin::new())
         .add_plugins(DamagePlugin)
         .add_plugins(CombatPlugin)
+        .add_plugins(game_over::GameOverPlugin)
         .run();
 }
