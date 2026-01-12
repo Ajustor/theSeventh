@@ -82,9 +82,9 @@ pub fn player_movement(
 
 pub fn player_actions(
     input: Res<ButtonInput<KeyCode>>,
-    mut query: Query<(&Climber, &GroundDetection, &Side), With<Player>>,
+    mut query: Query<(&Climber, &GroundDetection), With<Player>>,
 ) {
-    for (climber, ground_detection, side) in &mut query {
+    for (climber, ground_detection) in &mut query {
         if climber.climbing {
             return;
         }
@@ -92,10 +92,7 @@ pub fn player_actions(
         if input.just_pressed(KeyCode::KeyO) && ground_detection.on_ground {
             dbg!("Open element");
         }
-
-        if input.just_pressed(KeyCode::KeyK) {
-            dbg!(format!("Attack on {:?}", side));
-        }
+        // L'attaque est maintenant gérée par le CombatPlugin
     }
 }
 

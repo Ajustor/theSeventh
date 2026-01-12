@@ -4,7 +4,7 @@ use bevy::ecs::event::EventReader;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
-use crate::enemy::Enemy;
+use crate::entities::enemy::Enemy;
 use crate::entities::player::Player;
 use crate::entities::stats::Stats;
 

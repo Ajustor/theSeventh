@@ -8,6 +8,8 @@ use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_rapier2d::prelude::*;
 use engine::damage::DamagePlugin;
 
+use crate::combat::CombatPlugin;
+
 pub const WINDOW_HEIGHT: usize = 720;
 pub const WINDOW_WIDTH: usize = 1080;
 
@@ -15,7 +17,7 @@ mod camera;
 mod climbing;
 /// Bundles for auto-loading Rapier colliders as part of the level
 mod colliders;
-mod enemy;
+mod combat;
 mod engine;
 mod entities;
 /// Handles initialization and switching levels
@@ -23,13 +25,14 @@ mod game_flow;
 mod ground_detection;
 mod gui;
 mod inventory;
+mod menu;
 mod misc_objects;
 mod walls;
 
 #[derive(Debug, Clone, Copy, Default, Eq, PartialEq, Hash, States)]
-enum GameState {
-    _Menu,
+pub enum GameState {
     #[default]
+    Menu,
     InGame,
     _Inventory,
 }
@@ -66,15 +69,17 @@ fn main() {
             ..Default::default()
         })
         .add_plugins(game_flow::GameFlowPlugin)
+        .add_plugins(menu::MenuPlugin)
         .add_plugins(walls::WallPlugin)
         .add_plugins(ground_detection::GroundDetectionPlugin)
         .add_plugins(climbing::ClimbingPlugin)
         .add_plugins(entities::player::PlayerPlugin)
-        .add_plugins(enemy::EnemyPlugin)
+        .add_plugins(entities::enemy::EnemyPlugin)
         // .add_systems(Update, inventory::dbg_print_inventory)
         .add_systems(Update, camera::camera_fit_inside_current_level)
         .add_plugins(misc_objects::MiscObjectsPlugin)
         .add_plugins(WorldInspectorPlugin::new())
         .add_plugins(DamagePlugin)
+        .add_plugins(CombatPlugin)
         .run();
 }
