@@ -3,6 +3,7 @@ use bevy_ecs_ldtk::prelude::*;
 use bevy_rapier2d::dynamics::Velocity;
 
 use crate::gui::player_interface::PlayerInterfacePlugin;
+use crate::GameState;
 use crate::{climbing::Climber, inventory::Inventory};
 use crate::{colliders::ColliderBundle, ground_detection::GroundDetection};
 
@@ -95,13 +96,30 @@ pub fn player_actions(
     }
 }
 
+pub fn player_death_system(
+    mut commands: Commands,
+    player_query: Query<(Entity, &Stats), With<Player>>,
+    mut next_state: ResMut<NextState<GameState>>,
+) {
+    for (entity, stats) in player_query.iter() {
+        if stats.life <= 0 {
+            commands.entity(entity).despawn();
+            next_state.set(GameState::GameOver);
+            info!("Player died!");
+        }
+    }
+}
+
 pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, (player_movement, player_actions))
-            .register_ldtk_entity::<PlayerBundle>("Player")
-            .add_plugins(PlayerInterfacePlugin)
-            .add_plugins(PlayerAnimationPlugin);
+        app.add_systems(
+            Update,
+            (player_movement, player_actions, player_death_system),
+        )
+        .register_ldtk_entity::<PlayerBundle>("Player")
+        .add_plugins(PlayerInterfacePlugin)
+        .add_plugins(PlayerAnimationPlugin);
     }
 }

@@ -109,42 +109,6 @@ pub fn patrol(mut query: Query<(&mut Transform, &mut Velocity, &mut Patrol)>) {
     }
 }
 
-#[derive(Bundle)]
-pub struct EnemyBundle {
-    pub enemy: Enemy,
-    pub health: Health,
-    pub sprite: Sprite,
-    pub collider: Collider,
-    pub rigid_body: RigidBody,
-    pub transform: Transform,
-    pub global_transform: GlobalTransform,
-}
-
-impl Default for EnemyBundle {
-    fn default() -> Self {
-        Self {
-            enemy: Enemy,
-            health: Health::new(100),
-            sprite: Sprite {
-                color: Color::srgb(1.0, 0.0, 0.0),
-                custom_size: Some(Vec2::new(32.0, 32.0)),
-                ..default()
-            },
-            collider: Collider::cuboid(16.0, 16.0),
-            rigid_body: RigidBody::Dynamic,
-            transform: Transform::default(),
-            global_transform: GlobalTransform::default(),
-        }
-    }
-}
-
-pub fn spawn_test_enemy(mut commands: Commands) {
-    commands.spawn(EnemyBundle {
-        transform: Transform::from_translation(Vec3::new(200.0, 100.0, 0.0)),
-        ..default()
-    });
-}
-
 pub struct EnemyPlugin;
 
 impl Plugin for EnemyPlugin {

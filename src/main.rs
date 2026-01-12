@@ -34,7 +34,8 @@ pub enum GameState {
     #[default]
     Menu,
     InGame,
-    _Inventory,
+    Inventory,
+    GameOver,
 }
 
 fn main() {

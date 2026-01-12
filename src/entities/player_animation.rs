@@ -97,7 +97,7 @@ pub fn setup_player_sprite(
                 },
             ),
             PlayerAnimationState::default(),
-            AnimationTimer(Timer::from_seconds(0.1, TimerMode::Repeating)),
+            AnimationTimer(Timer::from_seconds(0.2, TimerMode::Repeating)),
         ));
     }
 }

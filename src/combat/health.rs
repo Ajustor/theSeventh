@@ -1,5 +1,7 @@
 use bevy::prelude::*;
 
+use crate::GameState;
+
 use super::attack::AttackHitEvent;
 
 /// Composant de santé pour toute entité pouvant subir des dégâts
@@ -29,7 +31,7 @@ impl Health {
         self.current = (self.current - amount).max(0);
         self.is_invincible = true;
         self.invincibility_timer.reset();
-        
+
         true
     }
 
@@ -70,14 +72,11 @@ pub fn apply_damage_from_attacks(
     }
 }
 
-pub fn update_invincibility(
-    time: Res<Time>,
-    mut query: Query<&mut Health>,
-) {
+pub fn update_invincibility(time: Res<Time>, mut query: Query<&mut Health>) {
     for mut health in query.iter_mut() {
         if health.is_invincible {
             health.invincibility_timer.tick(time.delta());
-            
+
             if health.invincibility_timer.finished() {
                 health.is_invincible = false;
             }
@@ -85,16 +84,21 @@ pub fn update_invincibility(
     }
 }
 
+#[derive(Component)]
+pub struct Player;
+
 pub fn check_deaths(
-    query: Query<(Entity, &Health)>,
+    query: Query<(Entity, &Health), With<Player>>,
     mut death_events: EventWriter<DeathEvent>,
     mut commands: Commands,
+    mut app_state: ResMut<NextState<GameState>>,
 ) {
     for (entity, health) in query.iter() {
         if health.is_dead() {
             death_events.send(DeathEvent { entity });
             commands.entity(entity).despawn_recursive();
-            info!("Entité {:?} est morte!", entity);
+            app_state.set(GameState::GameOver);
+            info!("Player is dead! Game Over.");
         }
     }
 }
@@ -103,11 +107,13 @@ pub struct HealthPlugin;
 
 impl Plugin for HealthPlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<DeathEvent>()
-            .add_systems(Update, (
+        app.add_event::<DeathEvent>().add_systems(
+            Update,
+            (
                 apply_damage_from_attacks,
                 update_invincibility,
                 check_deaths,
-            ));
+            ),
+        );
     }
 }

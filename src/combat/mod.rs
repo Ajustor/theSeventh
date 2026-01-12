@@ -1,8 +1,8 @@
 pub mod attack;
 pub mod health;
 
-use bevy::prelude::*;
 use attack::AttackPlugin;
+use bevy::prelude::*;
 use health::HealthPlugin;
 
 pub struct CombatPlugin;

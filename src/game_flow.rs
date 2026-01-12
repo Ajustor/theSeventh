@@ -62,8 +62,7 @@ pub struct GameFlowPlugin;
 
 impl Plugin for GameFlowPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, setup)
-            .add_systems(Update, update_level_selection)
+        app.add_systems(Update, update_level_selection)
             .add_systems(OnEnter(GameState::InGame), setup)
             .add_systems(OnEnter(GameState::InGame), update_level_selection);
     }
