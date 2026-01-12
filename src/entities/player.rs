@@ -6,6 +6,7 @@ use crate::gui::player_interface::PlayerInterfacePlugin;
 use crate::{climbing::Climber, inventory::Inventory};
 use crate::{colliders::ColliderBundle, ground_detection::GroundDetection};
 
+use super::player_animation::PlayerAnimationPlugin;
 use super::stats::Stats;
 
 #[derive(Debug, Clone, Copy, Default, Eq, PartialEq, Hash, States, Component)]
@@ -20,8 +21,6 @@ pub struct Player;
 
 #[derive(Clone, Default, Bundle, LdtkEntity)]
 pub struct PlayerBundle {
-    #[sprite("player.png")]
-    pub sprite: Sprite,
     #[from_entity_instance]
     pub collider_bundle: ColliderBundle,
     pub player: Player,
@@ -102,6 +101,7 @@ impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Update, (player_movement, player_actions))
             .register_ldtk_entity::<PlayerBundle>("Player")
-            .add_plugins(PlayerInterfacePlugin);
+            .add_plugins(PlayerInterfacePlugin)
+            .add_plugins(PlayerAnimationPlugin);
     }
 }
