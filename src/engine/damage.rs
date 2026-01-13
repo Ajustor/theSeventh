@@ -158,7 +158,6 @@ fn apply_damage(
     player_query: Query<Entity, With<Player>>,
     mut death_events: EventWriter<DeathEvent>,
 ) {
-    info!("Traitement des événements de dégâts");
     for event in damage_events.read() {
         // Ignorer si l'entité est invincible
         if invincibility_query.get(event.target).is_ok() {

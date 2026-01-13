@@ -9,11 +9,12 @@ pub struct Enemy;
 
 #[derive(Clone, Default, Bundle, LdtkEntity)]
 pub struct EnemyBundle {
+    pub enemy: Enemy,
     #[sprite_sheet]
     pub sprite_sheet: Sprite,
     #[from_entity_instance]
     pub collider_bundle: ColliderBundle,
-    pub enemy: Enemy,
+
     #[ldtk_entity]
     pub patrol: Patrol,
 
