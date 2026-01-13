@@ -10,6 +10,40 @@ use crate::{colliders::ColliderBundle, ground_detection::GroundDetection};
 use super::player_animation::PlayerAnimationPlugin;
 use super::stats::Stats;
 
+/// Composant pour gérer l'invincibilité temporaire après avoir pris des dégâts
+#[derive(Component)]
+pub struct Invincibility {
+    pub timer: Timer,
+    pub blink_timer: Timer,
+    pub visible: bool,
+}
+
+impl Default for Invincibility {
+    fn default() -> Self {
+        Self {
+            timer: Timer::from_seconds(3.0, TimerMode::Once),
+            blink_timer: Timer::from_seconds(0.1, TimerMode::Repeating),
+            visible: true,
+        }
+    }
+}
+
+/// Composant pour gérer le recul (knockback)
+#[derive(Component)]
+pub struct Knockback {
+    pub velocity: Vec2,
+    pub timer: Timer,
+}
+
+impl Knockback {
+    pub fn new(direction: Vec2, force: f32) -> Self {
+        Self {
+            velocity: direction.normalize_or_zero() * force,
+            timer: Timer::from_seconds(0.2, TimerMode::Once),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Copy, Default, Eq, PartialEq, Hash, States, Component)]
 pub enum Side {
     #[default]
@@ -40,48 +74,6 @@ pub struct PlayerBundle {
     // The whole EntityInstance can be stored directly as an EntityInstance component
     #[from_entity_instance]
     entity_instance: EntityInstance,
-}
-
-/// Composant pour gérer l'invincibilité temporaire après avoir pris des dégâts
-#[derive(Component)]
-pub struct Invincibility {
-    pub timer: Timer,
-    pub blink_timer: Timer,
-    pub visible: bool,
-}
-
-impl Default for Invincibility {
-    fn default() -> Self {
-        Self {
-            timer: Timer::from_seconds(3.0, TimerMode::Once),
-            blink_timer: Timer::from_seconds(0.1, TimerMode::Repeating),
-            visible: true,
-        }
-    }
-}
-
-/// Événement déclenché quand le joueur prend des dégâts
-#[derive(Event)]
-pub struct PlayerDamagedEvent {
-    pub player_entity: Entity,
-    pub damage: i32,
-    pub knockback_direction: Vec2,
-}
-
-/// Composant pour gérer le recul (knockback)
-#[derive(Component)]
-pub struct Knockback {
-    pub velocity: Vec2,
-    pub timer: Timer,
-}
-
-impl Knockback {
-    pub fn new(direction: Vec2, force: f32) -> Self {
-        Self {
-            velocity: direction.normalize_or_zero() * force,
-            timer: Timer::from_seconds(0.2, TimerMode::Once),
-        }
-    }
 }
 
 pub fn player_movement(
@@ -150,36 +142,20 @@ pub fn check_player_death(
     }
 }
 
-pub fn player_death_system(
-    mut commands: Commands,
-    player_query: Query<(Entity, &Stats), With<Player>>,
-    mut next_state: ResMut<NextState<GameState>>,
-) {
-    for (entity, stats) in player_query.iter() {
-        if stats.life <= 0 {
-            commands.entity(entity).despawn();
-            next_state.set(GameState::GameOver);
-            info!("Player died!");
-        }
-    }
-}
-
 pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (player_movement, player_actions, player_death_system),
+            (player_movement, player_actions).run_if(in_state(GameState::InGame)),
         )
         .register_ldtk_entity::<PlayerBundle>("Player")
         .add_plugins(PlayerInterfacePlugin)
         .add_plugins(PlayerAnimationPlugin)
-        .add_event::<PlayerDamagedEvent>()
         .add_systems(
             Update,
             (
-                handle_player_damaged,
                 update_invincibility,
                 update_knockback,
                 update_invincibility_blink,
@@ -190,38 +166,6 @@ impl Plugin for PlayerPlugin {
             Update,
             check_player_death.run_if(in_state(GameState::InGame)),
         );
-    }
-}
-
-/// Système qui gère les dégâts reçus par le joueur
-pub fn handle_player_damaged(
-    mut commands: Commands,
-    mut damage_events: EventReader<PlayerDamagedEvent>,
-    mut player_query: Query<(Entity, &mut Stats, Option<&Invincibility>), With<Player>>,
-) {
-    for event in damage_events.read() {
-        if let Ok((entity, mut stats, invincibility)) = player_query.get_mut(event.player_entity) {
-            // Ignorer les dégâts si le joueur est invincible
-            if invincibility.is_some() {
-                continue;
-            }
-
-            // Appliquer les dégâts
-            stats.life -= event.damage;
-            info!(
-                "Joueur touché ! Vie restante: {}/{}",
-                stats.life, stats.max_life
-            );
-
-            // Ajouter l'invincibilité
-            commands.entity(entity).insert(Invincibility::default());
-
-            // Ajouter le knockback (recul)
-            let knockback_force = 300.0;
-            commands
-                .entity(entity)
-                .insert(Knockback::new(event.knockback_direction, knockback_force));
-        }
     }
 }
 

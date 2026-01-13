@@ -8,7 +8,7 @@ use crate::{colliders::ColliderBundle, entities::stats::Stats};
 pub struct Enemy;
 
 #[derive(Clone, Default, Bundle, LdtkEntity)]
-pub struct MobBundle {
+pub struct EnemyBundle {
     #[sprite_sheet]
     pub sprite_sheet: Sprite,
     #[from_entity_instance]
@@ -112,6 +112,6 @@ pub struct EnemyPlugin;
 impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Update, patrol)
-            .register_ldtk_entity::<MobBundle>("Mob");
+            .register_ldtk_entity::<EnemyBundle>("Mob");
     }
 }

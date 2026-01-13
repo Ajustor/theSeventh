@@ -1,10 +1,8 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
-use crate::{
-    engine::damage::DamagedEvent,
-    entities::player::{Invincibility, Player, PlayerDamagedEvent, Side},
-};
+use crate::engine::damage::{DamageEvent, Invincibility};
+use crate::entities::player::{Player, Side};
 
 /// Marqueur pour la hitbox d'attaque
 #[derive(Component)]
@@ -126,10 +124,8 @@ pub fn update_attack_state(
 pub fn detect_attack_hits(
     mut collision_events: EventReader<CollisionEvent>,
     hitbox_query: Query<(&AttackHitbox, &Transform)>,
-    player_query: Query<&Transform, (With<Player>, Without<Invincibility>)>,
-    mut hit_events: EventWriter<AttackHitEvent>,
-    mut player_damaged_events: EventWriter<PlayerDamagedEvent>,
-    mut damage_events: EventWriter<DamagedEvent>,
+    target_query: Query<&Transform, Without<Invincibility>>,
+    mut damage_events: EventWriter<DamageEvent>,
 ) {
     for event in collision_events.read() {
         if let CollisionEvent::Started(entity1, entity2, _) = event {
@@ -144,39 +140,21 @@ pub fn detect_attack_hits(
 
             if let Ok((hitbox, hitbox_transform)) = hitbox_query.get(hitbox_entity) {
                 // Ne pas se toucher soi-même
-                if other_entity != hitbox.owner {
-                    hit_events.send(AttackHitEvent {
-                        attacker: hitbox.owner,
-                        target: other_entity,
-                        damage: hitbox.damage,
-                    });
+                if other_entity == hitbox.owner {
+                    continue;
+                }
 
-                    // Si la cible est le joueur, envoyer l'événement de dégâts
-                    if let Ok(player_transform) = player_query.get(other_entity) {
-                        // Calculer la direction du knockback (du hitbox vers le joueur)
-                        let knockback_direction = (player_transform.translation
-                            - hitbox_transform.translation)
-                            .truncate()
-                            .normalize_or_zero();
+                // Vérifier que la cible existe et n'est pas invincible
+                if let Ok(target_transform) = target_query.get(other_entity) {
+                    // Calculer la direction du knockback
+                    let knockback_direction = (target_transform.translation
+                        - hitbox_transform.translation)
+                        .truncate()
+                        .normalize_or_zero();
 
-                        player_damaged_events.send(PlayerDamagedEvent {
-                            player_entity: other_entity,
-                            damage: hitbox.damage,
-                            knockback_direction,
-                        });
-                    } else {
-                        // Pour les autres entités, on pourrait ajouter un système similaire
-                        // pour gérer leurs dégâts ici.
-                        damage_events.send(DamagedEvent {
-                            source: hitbox.owner,
-                            target: other_entity,
-                            amount: hitbox.damage,
-                        });
-                    }
-
-                    info!(
-                        "Attaque a touché {:?} pour {} dégâts",
-                        other_entity, hitbox.damage
+                    damage_events.send(
+                        DamageEvent::new(other_entity, hitbox.owner, hitbox.damage)
+                            .with_knockback(knockback_direction, 300.0),
                     );
                 }
             }
@@ -189,7 +167,7 @@ pub struct AttackPlugin;
 impl Plugin for AttackPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<AttackHitEvent>()
-            .add_event::<DamagedEvent>()
+            .add_event::<DamageEvent>()
             .add_systems(
                 Update,
                 (
