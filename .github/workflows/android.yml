@@ -60,12 +60,12 @@ jobs:
 
       - name: Find and rename APK
         run: |
-          APK_PATH=$(find target/release/apk -name "*.apk" | head -1)
+          APK_PATH=$(find target -name "*.apk" -path "*/release/*" | head -1)
           if [ -n "$APK_PATH" ] && [ -f "$APK_PATH" ]; then
             cp "$APK_PATH" theSeventh.apk
             echo "APK found and copied: $APK_PATH"
           else
-            echo "APK not found, checking build output"
+            echo "APK not found, checking all APK files in target directory:"
             find target -name "*.apk" || echo "No APK files found in target directory"
             exit 1
           fi
