@@ -68,7 +68,13 @@ jobs:
         run: |
           mkdir -p release
           cp target/${{ matrix.target }}/release/${{ matrix.artifact_name }} release/
-          cp -r assets release/ 2>/dev/null || echo "No assets folder found"
+          if [ -d "assets" ]; then
+            cp -r assets release/
+            echo "Assets copied successfully"
+          else
+            echo "ERROR: Assets folder not found!"
+            exit 1
+          fi
 
       - name: Prepare release directory (Windows)
         if: runner.os == 'Windows'
@@ -76,20 +82,66 @@ jobs:
         run: |
           New-Item -ItemType Directory -Force -Path release
           Copy-Item "target/${{ matrix.target }}/release/${{ matrix.artifact_name }}" -Destination release/
-          if (Test-Path assets) { Copy-Item -Recurse assets release/ }
+          if (Test-Path assets) {
+            Copy-Item -Recurse assets release/
+            Write-Host "Assets copied successfully"
+          } else {
+            Write-Error "ERROR: Assets folder not found!"
+            exit 1
+          }
 
       - name: Create archive (Linux)
         if: runner.os == 'Linux'
         run: tar -czvf ${{ matrix.asset_name }} -C release .
 
+      - name: Verify archive contents (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          echo "Archive contents:"
+          tar -tzf ${{ matrix.asset_name }} | head -20
+          if tar -tzf ${{ matrix.asset_name }} | grep -q "assets/"; then
+            echo "✓ Assets found in archive"
+          else
+            echo "ERROR: Assets not found in archive!"
+            exit 1
+          fi
+
       - name: Create archive (macOS)
         if: runner.os == 'macOS'
         run: tar -czvf ${{ matrix.asset_name }} -C release .
+
+      - name: Verify archive contents (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          echo "Archive contents:"
+          tar -tzf ${{ matrix.asset_name }} | head -20
+          if tar -tzf ${{ matrix.asset_name }} | grep -q "assets/"; then
+            echo "✓ Assets found in archive"
+          else
+            echo "ERROR: Assets not found in archive!"
+            exit 1
+          fi
 
       - name: Create archive (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
         run: Compress-Archive -Path release/* -DestinationPath ${{ matrix.asset_name }}
+
+      - name: Verify archive contents (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Write-Host "Archive contents:"
+          Expand-Archive -Path ${{ matrix.asset_name }} -DestinationPath temp_verify -Force
+          Get-ChildItem -Path temp_verify -Recurse | Select-Object -First 20 | Format-Table Name
+          if (Test-Path temp_verify/assets) {
+            Write-Host "✓ Assets found in archive"
+            Remove-Item -Recurse -Force temp_verify
+          } else {
+            Write-Error "ERROR: Assets not found in archive!"
+            Remove-Item -Recurse -Force temp_verify
+            exit 1
+          }
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
