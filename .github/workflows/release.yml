@@ -68,7 +68,7 @@ jobs:
         run: |
           mkdir -p release
           cp target/${{ matrix.target }}/release/${{ matrix.artifact_name }} release/
-          cp -r assets release/ 2>/dev/null || echo "No assets folder found"
+          # cp -r assets release/ 2>/dev/null || echo "No assets folder found"
 
       - name: Prepare release directory (Windows)
         if: runner.os == 'Windows'
@@ -76,7 +76,7 @@ jobs:
         run: |
           New-Item -ItemType Directory -Force -Path release
           Copy-Item "target/${{ matrix.target }}/release/${{ matrix.artifact_name }}" -Destination release/
-          if (Test-Path assets) { Copy-Item -Recurse assets release/ }
+          # if (Test-Path assets) { Copy-Item -Recurse assets release/ }
 
       - name: Create archive (Linux)
         if: runner.os == 'Linux'
