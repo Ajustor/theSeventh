@@ -11,7 +11,7 @@
 	"iid": "39227760-c640-11ed-bac6-0b5f56187457",
 	"jsonVersion": "1.5.3",
 	"appBuildId": 473703,
-	"nextUid": 107,
+	"nextUid": 111,
 	"identifierStyle": "Capitalize",
 	"toc": [],
 	"worldLayout": "Free",
@@ -1669,6 +1669,80 @@
 					"allowedRefsEntityUid": null,
 					"allowedRefTags": [],
 					"tilesetUid": null
+				},
+				{
+					"identifier": "life",
+					"doc": null,
+					"__type": "Int",
+					"uid": 108,
+					"type": "F_Int",
+					"isArray": false,
+					"canBeNull": false,
+					"arrayMinLength": null,
+					"arrayMaxLength": null,
+					"editorDisplayMode": "Hidden",
+					"editorDisplayScale": 1,
+					"editorDisplayPos": "Above",
+					"editorLinkStyle": "StraightArrow",
+					"editorDisplayColor": null,
+					"editorAlwaysShow": false,
+					"editorShowInWorld": true,
+					"editorCutLongValues": true,
+					"editorTextSuffix": null,
+					"editorTextPrefix": null,
+					"useForSmartColor": false,
+					"exportToToc": false,
+					"searchable": false,
+					"min": null,
+					"max": null,
+					"regex": null,
+					"acceptFileTypes": null,
+					"defaultOverride": { "id": "V_Float", "params": [10] },
+					"textLanguageMode": null,
+					"symmetricalRef": false,
+					"autoChainRef": true,
+					"allowOutOfLevelRef": true,
+					"allowedRefs": "OnlySame",
+					"allowedRefsEntityUid": null,
+					"allowedRefTags": [],
+					"tilesetUid": null
+				},
+				{
+					"identifier": "max_life",
+					"doc": null,
+					"__type": "Int",
+					"uid": 109,
+					"type": "F_Int",
+					"isArray": false,
+					"canBeNull": false,
+					"arrayMinLength": null,
+					"arrayMaxLength": null,
+					"editorDisplayMode": "Hidden",
+					"editorDisplayScale": 1,
+					"editorDisplayPos": "Above",
+					"editorLinkStyle": "StraightArrow",
+					"editorDisplayColor": null,
+					"editorAlwaysShow": false,
+					"editorShowInWorld": true,
+					"editorCutLongValues": true,
+					"editorTextSuffix": null,
+					"editorTextPrefix": null,
+					"useForSmartColor": false,
+					"exportToToc": false,
+					"searchable": false,
+					"min": null,
+					"max": null,
+					"regex": null,
+					"acceptFileTypes": null,
+					"defaultOverride": { "id": "V_Float", "params": [10] },
+					"textLanguageMode": null,
+					"symmetricalRef": false,
+					"autoChainRef": true,
+					"allowOutOfLevelRef": true,
+					"allowedRefs": "OnlySame",
+					"allowedRefsEntityUid": null,
+					"allowedRefTags": [],
+					"tilesetUid": null
 				}
 			]
 		},
@@ -1852,6 +1926,43 @@
 					"allowedRefsEntityUid": null,
 					"allowedRefTags": [],
 					"tilesetUid": null
+				},
+				{
+					"identifier": "max_life",
+					"doc": null,
+					"__type": "Int",
+					"uid": 110,
+					"type": "F_Int",
+					"isArray": false,
+					"canBeNull": false,
+					"arrayMinLength": null,
+					"arrayMaxLength": null,
+					"editorDisplayMode": "Hidden",
+					"editorDisplayScale": 1,
+					"editorDisplayPos": "Above",
+					"editorLinkStyle": "StraightArrow",
+					"editorDisplayColor": null,
+					"editorAlwaysShow": false,
+					"editorShowInWorld": true,
+					"editorCutLongValues": true,
+					"editorTextSuffix": null,
+					"editorTextPrefix": null,
+					"useForSmartColor": false,
+					"exportToToc": false,
+					"searchable": false,
+					"min": null,
+					"max": null,
+					"regex": null,
+					"acceptFileTypes": null,
+					"defaultOverride": { "id": "V_Int", "params": [2] },
+					"textLanguageMode": null,
+					"symmetricalRef": false,
+					"autoChainRef": true,
+					"allowOutOfLevelRef": true,
+					"allowedRefs": "OnlySame",
+					"allowedRefsEntityUid": null,
+					"allowedRefTags": [],
+					"tilesetUid": null
 				}
 			]
 		},
@@ -1872,15 +1983,15 @@
 			"maxHeight": null,
 			"keepAspectRatio": false,
 			"tileOpacity": 1,
-			"fillOpacity": 1,
-			"lineOpacity": 1,
+			"fillOpacity": 0.08,
+			"lineOpacity": 0,
 			"hollow": false,
 			"color": "#B7A87A",
-			"renderMode": "Rectangle",
+			"renderMode": "Tile",
 			"showName": true,
-			"tilesetId": null,
+			"tilesetId": 105,
 			"tileRenderMode": "Stretch",
-			"tileRect": null,
+			"tileRect": { "tilesetUid": 105, "x": 384, "y": 2816, "w": 32, "h": 32 },
 			"uiTileRect": null,
 			"nineSliceBorders": [],
 			"maxCount": 0,
@@ -2074,13 +2185,17 @@
 							"height": 24,
 							"defUid": 46,
 							"px": [184,208],
-							"fieldInstances": [{ "__identifier": "items", "__type": "Array<LocalEnum.Item>", "__value": [ "Knife", "Boots" ], "__tile": null, "defUid": 51, "realEditorValues": [ {
-								"id": "V_String",
-								"params": ["Knife"]
-							}, {
-								"id": "V_String",
-								"params": ["Boots"]
-							} ] }],
+							"fieldInstances": [
+								{ "__identifier": "items", "__type": "Array<LocalEnum.Item>", "__value": [ "Knife", "Boots" ], "__tile": null, "defUid": 51, "realEditorValues": [ {
+									"id": "V_String",
+									"params": ["Knife"]
+								}, {
+									"id": "V_String",
+									"params": ["Boots"]
+								} ] },
+								{ "__identifier": "life", "__type": "Int", "__value": 10, "__tile": null, "defUid": 108, "realEditorValues": [{ "id": "V_Int", "params": [10] }] },
+								{ "__identifier": "max_life", "__type": "Int", "__value": 10, "__tile": null, "defUid": 109, "realEditorValues": [{ "id": "V_Int", "params": [10] }] }
+							],
 							"__worldX": 184,
 							"__worldY": 208
 						},
@@ -2129,7 +2244,8 @@
 								{ "__identifier": "patrol", "__type": "Array<Point>", "__value": [{ "cx": 32, "cy": 9 }], "__tile": null, "defUid": 55, "realEditorValues": [{
 									"id": "V_String",
 									"params": ["32,9"]
-								}] }
+								}] },
+								{ "__identifier": "max_life", "__type": "Int", "__value": 2, "__tile": null, "defUid": 110, "realEditorValues": [] }
 							],
 							"__worldX": 328,
 							"__worldY": 160
@@ -2151,7 +2267,8 @@
 								{ "__identifier": "patrol", "__type": "Array<Point>", "__value": [{ "cx": 26, "cy": 17 }], "__tile": null, "defUid": 55, "realEditorValues": [{
 									"id": "V_String",
 									"params": ["26,17"]
-								}] }
+								}] },
+								{ "__identifier": "max_life", "__type": "Int", "__value": 2, "__tile": null, "defUid": 110, "realEditorValues": [] }
 							],
 							"__worldX": 264,
 							"__worldY": 288
@@ -2161,14 +2278,17 @@
 							"__grid": [27,17],
 							"__pivot": [0.5,1],
 							"__tags": [],
-							"__tile": null,
+							"__tile": { "tilesetUid": 105, "x": 384, "y": 2816, "w": 32, "h": 32 },
 							"__smartColor": "#B7A87A",
 							"iid": "a315d327-66b0-11ec-9cd7-35c28e76b04b",
 							"width": 8,
 							"height": 32,
 							"defUid": 86,
 							"px": [440,288],
-							"fieldInstances": [{ "__identifier": "locked", "__type": "Bool", "__value": false, "__tile": null, "defUid": 87, "realEditorValues": [null] }],
+							"fieldInstances": [{ "__identifier": "locked", "__type": "Bool", "__value": true, "__tile": null, "defUid": 87, "realEditorValues": [{
+								"id": "V_Bool",
+								"params": [ true ]
+							}] }],
 							"__worldX": 440,
 							"__worldY": 288
 						},
@@ -2177,14 +2297,17 @@
 							"__grid": [35,7],
 							"__pivot": [0.5,1],
 							"__tags": [],
-							"__tile": null,
+							"__tile": { "tilesetUid": 105, "x": 384, "y": 2816, "w": 32, "h": 32 },
 							"__smartColor": "#B7A87A",
 							"iid": "a315d328-66b0-11ec-9cd7-c30477cb5ff1",
 							"width": 8,
 							"height": 48,
 							"defUid": 86,
 							"px": [568,128],
-							"fieldInstances": [{ "__identifier": "locked", "__type": "Bool", "__value": false, "__tile": null, "defUid": 87, "realEditorValues": [] }],
+							"fieldInstances": [{ "__identifier": "locked", "__type": "Bool", "__value": true, "__tile": null, "defUid": 87, "realEditorValues": [{
+								"id": "V_Bool",
+								"params": [ true ]
+							}] }],
 							"__worldX": 568,
 							"__worldY": 128
 						},
@@ -2795,7 +2918,6 @@
 						{ "px": [528,176], "src": [32,64], "f": 0, "t": 94, "d": [18,616], "a": 1 },
 						{ "px": [544,176], "src": [32,64], "f": 0, "t": 94, "d": [18,617], "a": 1 },
 						{ "px": [656,224], "src": [32,64], "f": 0, "t": 94, "d": [18,783], "a": 1 },
-						{ "px": [672,224], "src": [32,64], "f": 0, "t": 94, "d": [18,784], "a": 1 },
 						{ "px": [688,224], "src": [32,64], "f": 0, "t": 94, "d": [18,785], "a": 1 },
 						{ "px": [320,32], "src": [0,64], "f": 0, "t": 92, "d": [17,126], "a": 1 },
 						{ "px": [480,32], "src": [0,64], "f": 1, "t": 92, "d": [17,136], "a": 1 },
@@ -3856,7 +3978,8 @@
 								{ "__identifier": "patrol", "__type": "Array<Point>", "__value": [{ "cx": 22, "cy": 14 }], "__tile": null, "defUid": 55, "realEditorValues": [{
 									"id": "V_String",
 									"params": ["22,14"]
-								}] }
+								}] },
+								{ "__identifier": "max_life", "__type": "Int", "__value": 2, "__tile": null, "defUid": 110, "realEditorValues": [] }
 							],
 							"__worldX": 808,
 							"__worldY": -112
@@ -3878,42 +4001,18 @@
 								{ "__identifier": "patrol", "__type": "Array<Point>", "__value": [{ "cx": 23, "cy": 20 }], "__tile": null, "defUid": 55, "realEditorValues": [{
 									"id": "V_String",
 									"params": ["23,20"]
-								}] }
+								}] },
+								{ "__identifier": "max_life", "__type": "Int", "__value": 2, "__tile": null, "defUid": 110, "realEditorValues": [] }
 							],
 							"__worldX": 776,
 							"__worldY": -16
-						},
-						{
-							"__identifier": "Mob",
-							"__grid": [12,13],
-							"__pivot": [0.5,1],
-							"__tags": [],
-							"__tile": { "tilesetUid": 105, "x": 160, "y": 2720, "w": 32, "h": 32 },
-							"__smartColor": "#FF0000",
-							"iid": "a316bd88-66b0-11ec-9cd7-cbd4e685a38f",
-							"width": 48,
-							"height": 48,
-							"defUid": 54,
-							"px": [200,224],
-							"fieldInstances": [
-								{ "__identifier": "loot", "__type": "Array<LocalEnum.Item>", "__value": [ "Knife", "Healing_Plant" ], "__tile": null, "defUid": 56, "realEditorValues": [ {
-									"id": "V_String",
-									"params": ["Knife"]
-								}, {
-									"id": "V_String",
-									"params": ["Healing_Plant"]
-								} ] },
-								{ "__identifier": "patrol", "__type": "Array<Point>", "__value": [], "__tile": null, "defUid": 55, "realEditorValues": [] }
-							],
-							"__worldX": 552,
-							"__worldY": -128
 						},
 						{
 							"__identifier": "Door",
 							"__grid": [20,13],
 							"__pivot": [0.5,1],
 							"__tags": [],
-							"__tile": null,
+							"__tile": { "tilesetUid": 105, "x": 384, "y": 2816, "w": 32, "h": 32 },
 							"__smartColor": "#B7A87A",
 							"iid": "a316bd89-66b0-11ec-9cd7-69448da578ed",
 							"width": 8,
@@ -3951,7 +4050,7 @@
 							"__grid": [7,8],
 							"__pivot": [0.5,1],
 							"__tags": [],
-							"__tile": null,
+							"__tile": { "tilesetUid": 105, "x": 384, "y": 2816, "w": 32, "h": 32 },
 							"__smartColor": "#B7A87A",
 							"iid": "a316bd8b-66b0-11ec-9cd7-27e78e24a888",
 							"width": 8,
@@ -4075,15 +4174,19 @@
 						{ "px": [336,272], "src": [320,128], "f": 0, "t": 204, "d": [100,735], "a": 1 },
 						{ "px": [384,272], "src": [320,128], "f": 1, "t": 204, "d": [100,738], "a": 1 },
 						{ "px": [416,272], "src": [320,128], "f": 0, "t": 204, "d": [100,740], "a": 1 },
+						{ "px": [416,272], "src": [320,128], "f": 1, "t": 204, "d": [100,740], "a": 1 },
 						{ "px": [336,288], "src": [320,128], "f": 0, "t": 204, "d": [100,777], "a": 1 },
 						{ "px": [384,288], "src": [320,128], "f": 1, "t": 204, "d": [100,780], "a": 1 },
 						{ "px": [416,288], "src": [320,128], "f": 0, "t": 204, "d": [100,782], "a": 1 },
+						{ "px": [416,288], "src": [320,128], "f": 1, "t": 204, "d": [100,782], "a": 1 },
 						{ "px": [336,304], "src": [320,128], "f": 0, "t": 204, "d": [100,819], "a": 1 },
 						{ "px": [384,304], "src": [320,128], "f": 1, "t": 204, "d": [100,822], "a": 1 },
 						{ "px": [416,304], "src": [320,128], "f": 0, "t": 204, "d": [100,824], "a": 1 },
+						{ "px": [416,304], "src": [320,128], "f": 1, "t": 204, "d": [100,824], "a": 1 },
 						{ "px": [336,320], "src": [320,128], "f": 0, "t": 204, "d": [100,861], "a": 1 },
 						{ "px": [384,320], "src": [320,128], "f": 1, "t": 204, "d": [100,864], "a": 1 },
-						{ "px": [416,320], "src": [320,128], "f": 0, "t": 204, "d": [100,866], "a": 1 }
+						{ "px": [416,320], "src": [320,128], "f": 0, "t": 204, "d": [100,866], "a": 1 },
+						{ "px": [416,320], "src": [320,128], "f": 1, "t": 204, "d": [100,866], "a": 1 }
 					],
 					"seed": 4893029,
 					"overrideTilesetUid": null,
@@ -4373,8 +4476,9 @@
 						{ "px": [304,96], "src": [0,64], "f": 0, "t": 92, "d": [17,271], "a": 1 },
 						{ "px": [272,304], "src": [0,64], "f": 1, "t": 92, "d": [17,815], "a": 1 },
 						{ "px": [128,64], "src": [64,144], "f": 0, "t": 211, "d": [29,176], "a": 1 },
-						{ "px": [288,64], "src": [48,160], "f": 1, "t": 233, "d": [29,186], "a": 1 },
+						{ "px": [288,64], "src": [64,144], "f": 1, "t": 211, "d": [29,186], "a": 1 },
 						{ "px": [112,96], "src": [64,224], "f": 2, "t": 326, "d": [31,259], "a": 1 },
+						{ "px": [112,96], "src": [64,224], "f": 3, "t": 326, "d": [31,259], "a": 1 },
 						{ "px": [304,96], "src": [64,224], "f": 2, "t": 326, "d": [31,271], "a": 1 },
 						{ "px": [272,304], "src": [64,224], "f": 3, "t": 326, "d": [31,815], "a": 1 },
 						{ "px": [112,48], "src": [64,144], "f": 3, "t": 211, "d": [32,133], "a": 1 },
@@ -5100,15 +5204,15 @@
 						{ "px": [160,160], "src": [256,240], "f": 0, "t": 361, "d": [77,431], "a": 1 },
 						{ "px": [176,160], "src": [272,240], "f": 0, "t": 362, "d": [77,431], "a": 1 },
 						{ "px": [192,160], "src": [288,240], "f": 0, "t": 363, "d": [77,431], "a": 1 },
-						{ "px": [144,64], "src": [144,272], "f": 2, "t": 400, "d": [39,177], "a": 1 },
-						{ "px": [176,64], "src": [144,272], "f": 2, "t": 400, "d": [39,179], "a": 1 },
-						{ "px": [192,64], "src": [192,304], "f": 2, "t": 449, "d": [39,180], "a": 1 },
-						{ "px": [224,64], "src": [176,272], "f": 2, "t": 402, "d": [39,182], "a": 1 },
-						{ "px": [256,64], "src": [160,304], "f": 2, "t": 447, "d": [39,184], "a": 1 },
+						{ "px": [144,64], "src": [176,272], "f": 2, "t": 402, "d": [39,177], "a": 1 },
+						{ "px": [176,64], "src": [192,304], "f": 2, "t": 449, "d": [39,179], "a": 1 },
+						{ "px": [192,64], "src": [160,304], "f": 2, "t": 447, "d": [39,180], "a": 1 },
+						{ "px": [224,64], "src": [160,304], "f": 2, "t": 447, "d": [39,182], "a": 1 },
+						{ "px": [256,64], "src": [176,272], "f": 2, "t": 402, "d": [39,184], "a": 1 },
 						{ "px": [128,144], "src": [192,304], "f": 0, "t": 449, "d": [39,386], "a": 1 },
 						{ "px": [144,208], "src": [176,272], "f": 0, "t": 402, "d": [39,555], "a": 1 },
 						{ "px": [128,64], "src": [144,272], "f": 3, "t": 400, "d": [65,176], "a": 1 },
-						{ "px": [288,64], "src": [144,272], "f": 2, "t": 400, "d": [65,186], "a": 1 },
+						{ "px": [288,64], "src": [144,304], "f": 2, "t": 446, "d": [65,186], "a": 1 },
 						{ "px": [96,144], "src": [144,304], "f": 0, "t": 446, "d": [65,384], "a": 1 },
 						{ "px": [128,208], "src": [128,320], "f": 1, "t": 468, "d": [65,554], "a": 1 },
 						{ "px": [384,320], "src": [144,304], "f": 0, "t": 446, "d": [65,864], "a": 1 },
@@ -5220,7 +5324,8 @@
 								{ "__identifier": "patrol", "__type": "Array<Point>", "__value": [{ "cx": 11, "cy": 10 }], "__tile": null, "defUid": 55, "realEditorValues": [{
 									"id": "V_String",
 									"params": ["11,10"]
-								}] }
+								}] },
+								{ "__identifier": "max_life", "__type": "Int", "__value": 2, "__tile": null, "defUid": 110, "realEditorValues": [] }
 							],
 							"__worldX": 392,
 							"__worldY": 512
@@ -5483,7 +5588,7 @@
 						{ "px": [160,160], "src": [0,64], "f": 1, "t": 92, "d": [17,300], "a": 1 },
 						{ "px": [320,160], "src": [0,64], "f": 0, "t": 92, "d": [17,310], "a": 1 },
 						{ "px": [176,48], "src": [64,144], "f": 0, "t": 211, "d": [29,98], "a": 1 },
-						{ "px": [304,48], "src": [48,160], "f": 1, "t": 233, "d": [29,106], "a": 1 },
+						{ "px": [304,48], "src": [64,144], "f": 1, "t": 211, "d": [29,106], "a": 1 },
 						{ "px": [224,32], "src": [64,224], "f": 3, "t": 326, "d": [31,72], "a": 1 },
 						{ "px": [256,32], "src": [64,224], "f": 2, "t": 326, "d": [31,74], "a": 1 },
 						{ "px": [160,160], "src": [64,224], "f": 3, "t": 326, "d": [31,300], "a": 1 },

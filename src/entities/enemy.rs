@@ -2,20 +2,24 @@ use bevy::prelude::*;
 use bevy_ecs_ldtk::{prelude::*, utils::ldtk_pixel_coords_to_translation_pivoted};
 use bevy_rapier2d::dynamics::Velocity;
 
-use crate::colliders::ColliderBundle;
+use crate::{colliders::ColliderBundle, entities::stats::Stats};
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug, Default, Component)]
 pub struct Enemy;
 
 #[derive(Clone, Default, Bundle, LdtkEntity)]
-pub struct MobBundle {
+pub struct EnemyBundle {
+    pub enemy: Enemy,
     #[sprite_sheet]
     pub sprite_sheet: Sprite,
     #[from_entity_instance]
     pub collider_bundle: ColliderBundle,
-    pub enemy: Enemy,
+
     #[ldtk_entity]
     pub patrol: Patrol,
+
+    #[from_entity_instance]
+    pub stats: Stats,
 }
 
 #[derive(Clone, PartialEq, Debug, Default, Component)]
@@ -109,6 +113,6 @@ pub struct EnemyPlugin;
 impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Update, patrol)
-            .register_ldtk_entity::<MobBundle>("Mob");
+            .register_ldtk_entity::<EnemyBundle>("Mob");
     }
 }

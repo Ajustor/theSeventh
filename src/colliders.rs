@@ -12,6 +12,7 @@ pub struct ColliderBundle {
     pub gravity_scale: GravityScale,
     pub friction: Friction,
     pub density: ColliderMassProperties,
+    pub active_events: ActiveEvents,
 }
 
 impl From<&EntityInstance> for ColliderBundle {
@@ -27,12 +28,14 @@ impl From<&EntityInstance> for ColliderBundle {
                     combine_rule: CoefficientCombineRule::Min,
                 },
                 rotation_constraints,
+                active_events: ActiveEvents::COLLISION_EVENTS,
                 ..Default::default()
             },
             "Mob" => ColliderBundle {
                 collider: Collider::cuboid(5., 5.),
                 rigid_body: RigidBody::KinematicVelocityBased,
                 rotation_constraints,
+                active_events: ActiveEvents::COLLISION_EVENTS,
                 ..Default::default()
             },
             "Chest" => ColliderBundle {
@@ -42,6 +45,15 @@ impl From<&EntityInstance> for ColliderBundle {
                 gravity_scale: GravityScale(1.0),
                 friction: Friction::new(0.5),
                 density: ColliderMassProperties::Density(15.0),
+                ..Default::default()
+            },
+            "Door" => ColliderBundle {
+                collider: Collider::cuboid(10., entity_instance.height as f32),
+                rigid_body: RigidBody::Fixed,
+                rotation_constraints,
+                gravity_scale: GravityScale(1.0),
+                friction: Friction::new(0.5),
+                // density: ColliderMassProperties::Density(100.0),
                 ..Default::default()
             },
             _ => ColliderBundle::default(),
