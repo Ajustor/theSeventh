@@ -9,18 +9,16 @@ use bevy_rapier2d::prelude::*;
 pub const WINDOW_HEIGHT: usize = 720;
 pub const WINDOW_WIDTH: usize = 1080;
 
-mod camera;
-mod climbing;
-/// Bundles for auto-loading Rapier colliders as part of the level
-mod colliders;
-mod enemy;
-/// Handles initialization and switching levels
-mod game_flow;
-mod ground_detection;
-mod inventory;
-mod misc_objects;
-mod player;
-mod walls;
+// Module organization:
+// - core: Core game systems (initialization, camera)
+// - entities: Game entities (player, enemies, objects)
+// - physics: Physics systems (collisions, ground detection, climbing)
+// - systems: Game systems (inventory, etc.)
+
+mod core;
+mod entities;
+mod physics;
+mod systems;
 
 fn main() {
     App::new()
@@ -52,14 +50,14 @@ fn main() {
             set_clear_color: SetClearColor::FromLevelBackground,
             ..Default::default()
         })
-        .add_plugins(game_flow::GameFlowPlugin)
-        .add_plugins(walls::WallPlugin)
-        .add_plugins(ground_detection::GroundDetectionPlugin)
-        .add_plugins(climbing::ClimbingPlugin)
-        .add_plugins(player::PlayerPlugin)
-        .add_plugins(enemy::EnemyPlugin)
-        .add_systems(Update, inventory::dbg_print_inventory)
-        .add_systems(Update, camera::camera_fit_inside_current_level)
-        .add_plugins(misc_objects::MiscObjectsPlugin)
+        .add_plugins(core::game_flow::GameFlowPlugin)
+        .add_plugins(physics::walls::WallPlugin)
+        .add_plugins(physics::ground_detection::GroundDetectionPlugin)
+        .add_plugins(physics::climbing::ClimbingPlugin)
+        .add_plugins(entities::player::PlayerPlugin)
+        .add_plugins(entities::enemy::EnemyPlugin)
+        .add_systems(Update, systems::inventory::dbg_print_inventory)
+        .add_systems(Update, core::camera::camera_fit_inside_current_level)
+        .add_plugins(entities::misc_objects::MiscObjectsPlugin)
         .run();
 }

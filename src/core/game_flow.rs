@@ -1,4 +1,4 @@
-use crate::player::Player;
+use crate::entities::player::Player;
 use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
 use bevy_rapier2d::prelude::*;
