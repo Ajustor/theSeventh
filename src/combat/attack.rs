@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
-use crate::engine::damage::DamageEvent;
+use crate::combat::damage::DamageEvent;
 use crate::entities::player::{Player, Side};
 
 /// Marqueur pour la hitbox d'attaque

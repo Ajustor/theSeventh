@@ -6,29 +6,18 @@ use bevy_ecs_ldtk::prelude::*;
 
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_rapier2d::prelude::*;
-use engine::damage::DamagePlugin;
 
 use crate::combat::CombatPlugin;
 
 pub const WINDOW_HEIGHT: usize = 720;
 pub const WINDOW_WIDTH: usize = 1080;
 
-mod camera;
-mod climbing;
-/// Bundles for auto-loading Rapier colliders as part of the level
-mod colliders;
 mod combat;
-mod engine;
+mod core;
 mod entities;
-/// Handles initialization and switching levels
-mod game_flow;
-mod game_over;
-mod ground_detection;
-mod gui;
-mod inventory;
-mod menu;
-mod misc_objects;
-mod walls;
+mod physics;
+mod ui;
+mod world;
 
 #[derive(Debug, Clone, Copy, Default, Eq, PartialEq, Hash, States)]
 pub enum GameState {
@@ -70,19 +59,18 @@ fn main() {
             set_clear_color: SetClearColor::FromLevelBackground,
             ..Default::default()
         })
-        .add_plugins(game_flow::GameFlowPlugin)
-        .add_plugins(menu::MenuPlugin)
-        .add_plugins(walls::WallPlugin)
-        .add_plugins(ground_detection::GroundDetectionPlugin)
-        .add_plugins(climbing::ClimbingPlugin)
+        .add_plugins(core::game_flow::GameFlowPlugin)
+        .add_plugins(ui::menu::MenuPlugin)
+        .add_plugins(physics::walls::WallPlugin)
+        .add_plugins(physics::ground_detection::GroundDetectionPlugin)
+        .add_plugins(physics::climbing::ClimbingPlugin)
         .add_plugins(entities::player::PlayerPlugin)
         .add_plugins(entities::enemy::EnemyPlugin)
-        // .add_systems(Update, inventory::dbg_print_inventory)
-        .add_systems(Update, camera::camera_fit_inside_current_level)
-        .add_plugins(misc_objects::MiscObjectsPlugin)
+        // .add_systems(Update, world::inventory::dbg_print_inventory)
+        .add_systems(Update, core::camera::camera_fit_inside_current_level)
+        .add_plugins(world::objects::ObjectsPlugin)
         // .add_plugins(WorldInspectorPlugin::new())
-        .add_plugins(DamagePlugin)
         .add_plugins(CombatPlugin)
-        .add_plugins(game_over::GameOverPlugin)
+        .add_plugins(ui::game_over::GameOverPlugin)
         .run();
 }

@@ -2,10 +2,10 @@ use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
 use bevy_rapier2d::dynamics::Velocity;
 
-use crate::gui::player_interface::PlayerInterfacePlugin;
+use crate::ui::hud::HudPlugin;
 use crate::GameState;
-use crate::{climbing::Climber, inventory::Inventory};
-use crate::{colliders::ColliderBundle, ground_detection::GroundDetection};
+use crate::{physics::climbing::Climber, world::inventory::Inventory};
+use crate::{physics::colliders::ColliderBundle, physics::ground_detection::GroundDetection};
 
 use super::player_animation::PlayerAnimationPlugin;
 use super::stats::Stats;
@@ -151,7 +151,7 @@ impl Plugin for PlayerPlugin {
             (player_movement, player_actions).run_if(in_state(GameState::InGame)),
         )
         .register_ldtk_entity::<PlayerBundle>("Player")
-        .add_plugins(PlayerInterfacePlugin)
+        .add_plugins(HudPlugin)
         .add_plugins(PlayerAnimationPlugin)
         .add_systems(
             Update,

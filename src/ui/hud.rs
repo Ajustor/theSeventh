@@ -96,9 +96,9 @@ fn cleanup(mut commands: Commands, player_interface: Res<PlayerInterface>) {
         .despawn_recursive();
 }
 
-pub struct PlayerInterfacePlugin;
+pub struct HudPlugin;
 
-impl Plugin for PlayerInterfacePlugin {
+impl Plugin for HudPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(GameState::InGame), setup)
             .add_systems(Update, menu.run_if(in_state(GameState::InGame)))

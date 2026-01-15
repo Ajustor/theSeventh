@@ -2,7 +2,7 @@
 
 ## Vue d'ensemble
 
-Ce document propose une organisation des fichiers du projet "The Seventh", un jeu de plateforme 2D développé avec le moteur **Bevy** en Rust.
+Ce document décrit l'organisation des fichiers du projet "The Seventh", un jeu de plateforme 2D développé avec le moteur **Bevy** en Rust.
 
 ---
 
@@ -13,221 +13,150 @@ theSeventh/
 ├── .github/                    # Configuration GitHub (CI/CD, workflows)
 ├── assets/                     # Ressources graphiques et niveaux
 │   ├── atlas/                  # Spritesheets et textures
+│   │   ├── MV Icons Complete Sheet Free - ALL.png
+│   │   ├── NuclearBlaze_by_deepnight.png
+│   │   ├── SunnyLand-player.png
+│   │   └── SunnyLand_by_Ansimuz-extended.png
 │   ├── player.png
 │   └── Typical_2D_platformer_example.ldtk
 ├── src/                        # Code source du jeu
 │   ├── combat/                 # Système de combat
-│   ├── engine/                 # Moteur de jeu (systèmes génériques)
-│   ├── entities/               # Entités du jeu (joueur, ennemis)
-│   ├── gui/                    # Interface utilisateur en jeu
-│   ├── menu/                   # Menu principal
-│   └── [fichiers racine]       # Modules principaux
-├── Cargo.toml                  # Configuration du projet Rust
-└── Cargo.lock                  # Verrouillage des dépendances
-```
-
----
-
-## 🎯 Classification par Utilité
-
-### 1. ⚙️ **Configuration & Build**
-| Fichier | Description | Utilité |
-|---------|-------------|---------|
-| `Cargo.toml` | Dépendances et configuration du projet | Configuration du build Rust |
-| `Cargo.lock` | Versions exactes des dépendances | Reproductibilité du build |
-| `.gitignore` | Fichiers ignorés par Git | Gestion du versionnement |
-| `.github/` | Workflows CI/CD | Automatisation |
-
----
-
-### 2. 🎮 **Point d'Entrée & État du Jeu**
-| Fichier | Description | Utilité |
-|---------|-------------|---------|
-| `src/main.rs` | Point d'entrée principal | Initialise l'application Bevy, charge tous les plugins |
-| `src/game_flow.rs` | Gestion des transitions de niveaux | Setup de niveau, détection de changement de niveau |
-
----
-
-### 3. 👤 **Système du Joueur (Player)**
-| Fichier | Description | Utilité |
-|---------|-------------|---------|
-| `src/entities/player.rs` | Logique du joueur | Mouvement, actions, knockback, invincibilité |
-| `src/entities/player_animation.rs` | Animations du joueur | États d'animation (idle, run, jump, attack...) |
-| `src/entities/stats.rs` | Statistiques des entités | Vie, dégâts - partagé entre joueur et ennemis |
-
----
-
-### 4. 👾 **Système des Ennemis**
-| Fichier | Description | Utilité |
-|---------|-------------|---------|
-| `src/entities/enemy.rs` | Logique des ennemis | Patrouille, comportement IA basique |
-| `src/entities/mod.rs` | Module entities | Export des sous-modules |
-
----
-
-### 5. ⚔️ **Système de Combat**
-| Fichier | Description | Utilité |
-|---------|-------------|---------|
-| `src/combat/attack.rs` | Système d'attaque | Hitbox, animation de slash, détection des coups |
-| `src/combat/health.rs` | Système de santé | Points de vie, dégâts, mort |
-| `src/combat/mod.rs` | Module combat | Export des sous-modules |
-
----
-
-### 6. 💥 **Moteur de Dégâts (Engine)**
-| Fichier | Description | Utilité |
-|---------|-------------|---------|
-| `src/engine/damage.rs` | Système de dégâts générique | Collisions joueur-ennemi, knockback, invincibilité, flash visuel |
-| `src/engine/mod.rs` | Module engine | Export des sous-modules |
-
----
-
-### 7. 🎯 **Physique & Collisions**
-| Fichier | Description | Utilité |
-|---------|-------------|---------|
-| `src/colliders.rs` | Bundles de collisions | Colliders pour Player, Mob, Chest, Door |
-| `src/ground_detection.rs` | Détection du sol | Capteur de sol pour le saut |
-| `src/walls.rs` | Génération des murs | Optimisation des collisions des murs (fusion des tiles) |
-| `src/climbing.rs` | Système d'escalade | Détection et gestion des échelles |
-
----
-
-### 8. 🖥️ **Interface Utilisateur (UI)**
-| Fichier | Description | Utilité |
-|---------|-------------|---------|
-| `src/gui/player_interface.rs` | HUD du joueur | Barre de vie, affichage des stats |
-| `src/gui/mod.rs` | Module GUI | Export des sous-modules |
-| `src/menu/mod.rs` | Menu principal | Écran titre, boutons Jouer/Quitter, navigation clavier |
-| `src/game_over.rs` | Écran Game Over | Affichage mort, boutons Recommencer/Menu |
-
----
-
-### 9. 📷 **Caméra & Rendu**
-| Fichier | Description | Utilité |
-|---------|-------------|---------|
-| `src/camera.rs` | Système de caméra | Suit le joueur, s'adapte aux limites du niveau |
-
----
-
-### 10. 🎒 **Systèmes Divers**
-| Fichier | Description | Utilité |
-|---------|-------------|---------|
-| `src/inventory.rs` | Inventaire | Gestion des objets du joueur (structure de base) |
-| `src/misc_objects.rs` | Objets divers | Coffres, portes, citrouilles |
-
----
-
-### 11. 🎨 **Assets (Ressources)**
-| Fichier | Description | Utilité |
-|---------|-------------|---------|
-| `assets/Typical_2D_platformer_example.ldtk` | Fichier de niveau LDtk | Design des niveaux |
-| `assets/player.png` | Sprite du joueur | Graphisme principal |
-| `assets/atlas/*.png` | Spritesheets | Tuiles, icônes, animations |
-
----
-
-## 🔄 Proposition de Réorganisation
-
-Voici une structure améliorée pour une meilleure lisibilité et maintenabilité :
-
-```
-theSeventh/
-├── assets/
-│   ├── levels/                 # 📍 Niveaux (fichiers .ldtk)
-│   │   └── Typical_2D_platformer_example.ldtk
-│   ├── sprites/                # 📍 Sprites individuels
-│   │   └── player.png
-│   └── atlas/                  # Spritesheets (déjà bien organisé)
-│
-├── src/
-│   ├── core/                   # 📍 Systèmes fondamentaux
-│   │   ├── mod.rs
-│   │   ├── game_state.rs       # États du jeu (Menu, InGame, GameOver)
-│   │   ├── camera.rs           # Système de caméra
-│   │   └── game_flow.rs        # Transitions de niveaux
-│   │
-│   ├── physics/                # 📍 Physique et collisions
-│   │   ├── mod.rs
-│   │   ├── colliders.rs        # Bundles de collisions
+│   │   ├── mod.rs              # Module principal
+│   │   ├── attack.rs           # Système d'attaque (hitbox, slash animation)
+│   │   ├── damage.rs           # Système de dégâts (knockback, invincibilité)
+│   │   └── health.rs           # Système de santé
+│   ├── core/                   # Systèmes fondamentaux
+│   │   ├── mod.rs              # Module principal
+│   │   ├── camera.rs           # Caméra qui suit le joueur
+│   │   └── game_flow.rs        # Gestion des niveaux et transitions
+│   ├── entities/               # Entités du jeu
+│   │   ├── mod.rs              # Module principal
+│   │   ├── player.rs           # Logique du joueur (mouvement, actions)
+│   │   ├── player_animation.rs # Animations du joueur
+│   │   ├── enemy.rs            # Logique des ennemis (patrouille)
+│   │   └── stats.rs            # Statistiques (vie, dégâts)
+│   ├── physics/                # Physique et collisions
+│   │   ├── mod.rs              # Module principal
+│   │   ├── colliders.rs        # Bundles de collisions (Player, Mob, Chest, Door)
+│   │   ├── climbing.rs         # Système d'escalade
 │   │   ├── ground_detection.rs # Détection du sol
-│   │   ├── walls.rs            # Génération des murs
-│   │   └── climbing.rs         # Système d'escalade
-│   │
-│   ├── entities/               # Entités (déjà bien organisé)
-│   │   ├── mod.rs
-│   │   ├── player/             # 📍 Sous-dossier joueur
-│   │   │   ├── mod.rs
-│   │   │   ├── movement.rs     # Mouvement du joueur
-│   │   │   ├── animation.rs    # Animations
-│   │   │   └── effects.rs      # Invincibilité, knockback
-│   │   ├── enemy.rs
-│   │   └── stats.rs
-│   │
-│   ├── combat/                 # Combat (déjà bien organisé)
-│   │   ├── mod.rs
-│   │   ├── attack.rs
-│   │   ├── health.rs
-│   │   └── damage.rs           # 📍 Déplacer depuis engine/
-│   │
-│   ├── ui/                     # 📍 Renommer gui/ -> ui/
-│   │   ├── mod.rs
-│   │   ├── hud.rs              # 📍 Renommer player_interface.rs
-│   │   ├── menu.rs             # 📍 Déplacer depuis menu/mod.rs
-│   │   └── game_over.rs        # 📍 Déplacer depuis racine
-│   │
-│   ├── world/                  # 📍 Objets du monde
-│   │   ├── mod.rs
-│   │   ├── objects.rs          # Coffres, portes, etc.
-│   │   └── inventory.rs
-│   │
+│   │   └── walls.rs            # Génération des murs
+│   ├── ui/                     # Interface utilisateur
+│   │   ├── mod.rs              # Module principal
+│   │   ├── hud.rs              # HUD en jeu (barre de vie)
+│   │   ├── menu.rs             # Menu principal
+│   │   └── game_over.rs        # Écran Game Over
+│   ├── world/                  # Objets du monde
+│   │   ├── mod.rs              # Module principal
+│   │   ├── inventory.rs        # Système d'inventaire
+│   │   └── objects.rs          # Coffres, portes, citrouilles
 │   └── main.rs                 # Point d'entrée
-│
-├── Cargo.toml
-├── Cargo.lock
-├── README.md                   # 📍 À créer
+├── Cargo.toml                  # Configuration du projet Rust
+├── Cargo.lock                  # Verrouillage des dépendances
 └── STRUCTURE.md                # Ce fichier
 ```
 
 ---
 
-## 📊 Résumé des Catégories
+## 🎯 Classification par Catégorie
 
-| Catégorie | Fichiers | % du Code |
-|-----------|----------|-----------|
-| **Physique & Collisions** | 4 fichiers | ~20% |
-| **Entités (Player/Enemy)** | 5 fichiers | ~25% |
-| **Combat & Dégâts** | 4 fichiers | ~20% |
-| **Interface Utilisateur** | 4 fichiers | ~15% |
-| **Core (Caméra, Flow)** | 3 fichiers | ~10% |
-| **Monde & Objets** | 2 fichiers | ~10% |
+### 1. ⚙️ **Configuration & Build**
+| Fichier | Description |
+|---------|-------------|
+| `Cargo.toml` | Dépendances et configuration du projet |
+| `Cargo.lock` | Versions exactes des dépendances |
+| `.gitignore` | Fichiers ignorés par Git |
+
+---
+
+### 2. 🎮 **Core** (`src/core/`)
+Systèmes fondamentaux du jeu.
+
+| Fichier | Description |
+|---------|-------------|
+| `camera.rs` | Caméra qui suit le joueur et s'adapte au niveau |
+| `game_flow.rs` | Setup des niveaux, transitions entre zones |
+
+---
+
+### 3. 👤 **Entities** (`src/entities/`)
+Entités du jeu (joueur, ennemis).
+
+| Fichier | Description |
+|---------|-------------|
+| `player.rs` | Mouvement, actions, knockback, invincibilité |
+| `player_animation.rs` | États d'animation (idle, run, jump, attack...) |
+| `enemy.rs` | Comportement IA, patrouille |
+| `stats.rs` | Points de vie, dégâts (partagé) |
+
+---
+
+### 4. ⚔️ **Combat** (`src/combat/`)
+Tout ce qui concerne le combat.
+
+| Fichier | Description |
+|---------|-------------|
+| `attack.rs` | Hitbox d'attaque, animation de slash |
+| `damage.rs` | Gestion des dégâts, knockback, invincibilité |
+| `health.rs` | Points de vie, mort |
+
+---
+
+### 5. 🎯 **Physics** (`src/physics/`)
+Physique et détection de collisions.
+
+| Fichier | Description |
+|---------|-------------|
+| `colliders.rs` | Bundles pour Player, Mob, Chest, Door |
+| `ground_detection.rs` | Capteur pour le saut |
+| `walls.rs` | Génération optimisée des murs |
+| `climbing.rs` | Système d'échelles |
+
+---
+
+### 6. 🖥️ **UI** (`src/ui/`)
+Interface utilisateur.
+
+| Fichier | Description |
+|---------|-------------|
+| `hud.rs` | Barre de vie en jeu |
+| `menu.rs` | Menu principal (Jouer/Quitter) |
+| `game_over.rs` | Écran de mort |
+
+---
+
+### 7. 🌍 **World** (`src/world/`)
+Objets et éléments du monde.
+
+| Fichier | Description |
+|---------|-------------|
+| `inventory.rs` | Système d'inventaire |
+| `objects.rs` | Coffres, portes, citrouilles |
 
 ---
 
 ## 🔧 Dépendances Principales
 
-| Dépendance | Utilité |
-|------------|---------|
-| `bevy` | Moteur de jeu ECS |
-| `bevy_ecs_ldtk` | Import de niveaux LDtk |
-| `bevy_rapier2d` | Physique 2D |
-| `bevy-inspector-egui` | Debugging (inspecteur) |
+| Dépendance | Version | Utilité |
+|------------|---------|---------|
+| `bevy` | 0.15.0 | Moteur de jeu ECS |
+| `bevy_ecs_ldtk` | 0.11.0 | Import de niveaux LDtk |
+| `bevy_rapier2d` | 0.28.0 | Physique 2D |
+| `bevy-inspector-egui` | 0.28.1 | Debugging |
 
 ---
 
-## 💡 Recommandations
+## 📊 Résumé
 
-1. **Modularité** : La structure actuelle est déjà bien modulaire avec les dossiers `combat/`, `entities/`, `engine/`, `gui/`, `menu/`.
-
-2. **À améliorer** :
-   - Fusionner `engine/damage.rs` avec `combat/` (même domaine)
-   - Créer un dossier `physics/` pour regrouper `colliders.rs`, `ground_detection.rs`, `walls.rs`, `climbing.rs`
-   - Renommer `gui/` en `ui/` (convention plus standard)
-   - Regrouper les fichiers UI (`menu/`, `game_over.rs`, `gui/`) dans un seul dossier
-
-3. **Assets** : Créer des sous-dossiers `levels/` et `sprites/` pour une meilleure organisation.
-
-4. **Documentation** : Ajouter un `README.md` avec les instructions de build et les contrôles du jeu.
+| Dossier | Fichiers | Description |
+|---------|----------|-------------|
+| `core/` | 2 | Caméra, game flow |
+| `physics/` | 4 | Collisions, détection |
+| `entities/` | 4 | Joueur, ennemis |
+| `combat/` | 3 | Attaque, dégâts |
+| `ui/` | 3 | HUD, menus |
+| `world/` | 2 | Objets, inventaire |
 
 ---
 
-*Document généré pour faciliter la navigation et la maintenance du projet.*
+*Structure réorganisée pour une meilleure maintenabilité du projet.*

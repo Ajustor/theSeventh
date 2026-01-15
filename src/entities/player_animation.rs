@@ -1,8 +1,8 @@
 use bevy::prelude::*;
 
 use super::player::{Player, Side};
-use crate::climbing::Climber;
-use crate::ground_detection::GroundDetection;
+use crate::physics::climbing::Climber;
+use crate::physics::ground_detection::GroundDetection;
 
 /// États d'animation du joueur
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default, Component)]

@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
 
-use crate::colliders::ColliderBundle;
+use crate::physics::colliders::ColliderBundle;
 
 #[derive(Clone, Default, Bundle, LdtkEntity)]
 pub struct ChestBundle {
@@ -25,9 +25,9 @@ pub struct PumpkinsBundle {
     pub sprite_sheet: Sprite,
 }
 
-pub struct MiscObjectsPlugin;
+pub struct ObjectsPlugin;
 
-impl Plugin for MiscObjectsPlugin {
+impl Plugin for ObjectsPlugin {
     fn build(&self, app: &mut App) {
         app.register_ldtk_entity::<ChestBundle>("Chest")
             .register_ldtk_entity::<DoorBundle>("Door")
