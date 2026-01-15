@@ -3,6 +3,7 @@ use bevy_ecs_ldtk::prelude::*;
 use bevy_rapier2d::dynamics::Velocity;
 
 use crate::gui::player_interface::PlayerInterfacePlugin;
+use crate::input::{get_movement_input, ActiveGamepad};
 use crate::GameState;
 use crate::{climbing::Climber, inventory::Inventory};
 use crate::{colliders::ColliderBundle, ground_detection::GroundDetection};
@@ -77,17 +78,18 @@ pub struct PlayerBundle {
 }
 
 pub fn player_movement(
-    input: Res<ButtonInput<KeyCode>>,
+    keyboard: Res<ButtonInput<KeyCode>>,
+    active_gamepad: Res<ActiveGamepad>,
+    gamepads: Query<&Gamepad>,
     mut query: Query<(&mut Velocity, &mut Climber, &GroundDetection, &mut Side), With<Player>>,
 ) {
+    let input = get_movement_input(&keyboard, &active_gamepad, &gamepads);
+    
     for (mut velocity, mut climber, ground_detection, mut side) in &mut query {
-        let right = if input.pressed(KeyCode::KeyD) { 1. } else { 0. };
-        let left = if input.pressed(KeyCode::KeyA) { 1. } else { 0. };
+        velocity.linvel.x = input.horizontal * 200.;
 
-        velocity.linvel.x = (right - left) * 200.;
-
-        if right > 0. || left > 0. {
-            if right > 0. {
+        if input.horizontal != 0. {
+            if input.horizontal > 0. {
                 *side = Side::Right;
             } else {
                 *side = Side::Left;
@@ -96,18 +98,15 @@ pub fn player_movement(
 
         if climber.intersecting_climbables.is_empty() {
             climber.climbing = false;
-        } else if input.just_pressed(KeyCode::KeyW) || input.just_pressed(KeyCode::KeyS) {
+        } else if input.vertical != 0. {
             climber.climbing = true;
         }
 
         if climber.climbing {
-            let up = if input.pressed(KeyCode::KeyW) { 1. } else { 0. };
-            let down = if input.pressed(KeyCode::KeyS) { 1. } else { 0. };
-
-            velocity.linvel.y = (up - down) * 200.;
+            velocity.linvel.y = input.vertical * 200.;
         }
 
-        if input.just_pressed(KeyCode::Space) && (ground_detection.on_ground || climber.climbing) {
+        if input.jump && (ground_detection.on_ground || climber.climbing) {
             velocity.linvel.y = 500.;
             climber.climbing = false;
         }
@@ -115,15 +114,20 @@ pub fn player_movement(
 }
 
 pub fn player_actions(
-    input: Res<ButtonInput<KeyCode>>,
+    keyboard: Res<ButtonInput<KeyCode>>,
+    active_gamepad: Res<ActiveGamepad>,
+    gamepads: Query<&Gamepad>,
     mut query: Query<(&Climber, &GroundDetection), With<Player>>,
 ) {
+    use crate::input::get_combat_input;
+    let input = get_combat_input(&keyboard, &active_gamepad, &gamepads);
+    
     for (climber, ground_detection) in &mut query {
         if climber.climbing {
             return;
         }
 
-        if input.just_pressed(KeyCode::KeyO) && ground_detection.on_ground {
+        if input.interact && ground_detection.on_ground {
             dbg!("Open element");
         }
         // L'attaque est maintenant gérée par le CombatPlugin

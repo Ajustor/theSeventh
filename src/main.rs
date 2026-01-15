@@ -26,6 +26,7 @@ mod game_flow;
 mod game_over;
 mod ground_detection;
 mod gui;
+mod input;
 mod inventory;
 mod menu;
 mod misc_objects;
@@ -74,6 +75,7 @@ fn main() {
             set_clear_color: SetClearColor::FromLevelBackground,
             ..Default::default()
         })
+        .add_plugins(input::InputPlugin)
         .add_plugins(game_flow::GameFlowPlugin)
         .add_plugins(menu::MenuPlugin)
         .add_plugins(walls::WallPlugin)

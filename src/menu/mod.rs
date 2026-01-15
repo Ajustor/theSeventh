@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 
+use crate::input::{get_menu_input, ActiveGamepad};
 use crate::GameState;
 
 /// Marqueur pour les entités du menu
@@ -146,7 +147,7 @@ fn setup_menu(mut commands: Commands, mut selected: ResMut<SelectedMenuButton>) 
 
             // Instructions de navigation
             parent.spawn((
-                Text::new("↑↓ ou W/S : Naviguer  |  Entrée/Espace : Sélectionner"),
+                Text::new("↑↓ WASD D-Pad : Naviguer  |  Entrée Espace A : Sélectionner"),
                 TextFont {
                     font_size: 16.0,
                     ..default()
@@ -167,13 +168,20 @@ fn cleanup_menu(mut commands: Commands, menu_query: Query<Entity, With<MenuEntit
 }
 
 /// Navigation clavier dans le menu
-fn keyboard_navigation(input: Res<ButtonInput<KeyCode>>, mut selected: ResMut<SelectedMenuButton>) {
+fn keyboard_navigation(
+    keyboard: Res<ButtonInput<KeyCode>>,
+    active_gamepad: Res<ActiveGamepad>,
+    gamepads: Query<&Gamepad>,
+    mut selected: ResMut<SelectedMenuButton>,
+) {
+    let input = get_menu_input(&keyboard, &active_gamepad, &gamepads);
+    
     let mut direction: i32 = 0;
 
-    if input.just_pressed(KeyCode::ArrowUp) || input.just_pressed(KeyCode::KeyW) {
+    if input.up {
         direction = -1;
     }
-    if input.just_pressed(KeyCode::ArrowDown) || input.just_pressed(KeyCode::KeyS) {
+    if input.down {
         direction = 1;
     }
 
@@ -185,12 +193,16 @@ fn keyboard_navigation(input: Res<ButtonInput<KeyCode>>, mut selected: ResMut<Se
 
 /// Validation avec Entrée ou Espace
 fn keyboard_selection(
-    input: Res<ButtonInput<KeyCode>>,
+    keyboard: Res<ButtonInput<KeyCode>>,
+    active_gamepad: Res<ActiveGamepad>,
+    gamepads: Query<&Gamepad>,
     selected: Res<SelectedMenuButton>,
     mut next_state: ResMut<NextState<GameState>>,
     mut exit: EventWriter<AppExit>,
 ) {
-    if input.just_pressed(KeyCode::Enter) || input.just_pressed(KeyCode::Space) {
+    let input = get_menu_input(&keyboard, &active_gamepad, &gamepads);
+    
+    if input.confirm {
         match selected.index {
             0 => next_state.set(GameState::InGame), // Jouer
             1 => {
