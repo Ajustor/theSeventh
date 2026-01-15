@@ -197,14 +197,13 @@ pub fn get_menu_input(
             if gamepad.just_pressed(GamepadButton::DPadDown) {
                 input.down = true;
             }
-            // Stick gauche pour la navigation
-            // Note: Ceci nécessiterait une gestion de la dead zone et du timing, simplifié ici
             
             // Bouton A/Cross pour confirmer
             if gamepad.just_pressed(GamepadButton::South) {
                 input.confirm = true;
             }
-            // Bouton B/Circle pour annuler
+            // Bouton B/Circle pour annuler (même bouton que l'interaction en jeu)
+            // Note: Cette assignation double est intentionnelle pour la cohérence des contrôles
             if gamepad.just_pressed(GamepadButton::East) {
                 input.cancel = true;
             }
