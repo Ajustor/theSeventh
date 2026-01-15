@@ -64,7 +64,7 @@ jobs:
         run: |
           APK_PATH=$(find target -name "*.apk" -path "*/release/*" | head -1)
           if [ -n "$APK_PATH" ] && [ -f "$APK_PATH" ]; then
-            cp "$APK_PATH" theSeventh.apk
+            cp "$APK_PATH" ${{ env.GAME_NAME }}.apk
             echo "APK found and copied: $APK_PATH"
           else
             echo "APK not found, checking all APK files in target directory:"
@@ -75,14 +75,14 @@ jobs:
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: theSeventh-android.apk
-          path: theSeventh.apk
+          name: ${{ env.GAME_NAME }}-android.apk
+          path: ${{ env.GAME_NAME }}.apk
           if-no-files-found: warn
 
       - name: Upload to release (if tag)
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v1
         with:
-          files: theSeventh.apk
+          files: ${{ env.GAME_NAME }}.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
