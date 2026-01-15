@@ -25,3 +25,27 @@ bevy_rapier2d = "0.28.0"
 fake = { version = "2.8.0", features = ["uuid"] }
 rand = "0.8"
 bevy-inspector-egui = "0.28"
+
+[package.metadata.android]
+package = "com.ajustor.theseventh"
+build_targets = ["aarch64-linux-android", "armv7-linux-androideabi"]
+assets = "assets"
+
+[package.metadata.android.sdk]
+min_sdk_version = 28
+target_sdk_version = 33
+
+[[package.metadata.android.uses_permission]]
+name = "android.permission.INTERNET"
+
+[[package.metadata.android.uses_permission]]
+name = "android.permission.WRITE_EXTERNAL_STORAGE"
+
+[[package.metadata.android.uses_feature]]
+name = "android.hardware.vulkan.level"
+required = false
+
+[[package.metadata.android.uses_feature]]
+name = "android.hardware.vulkan.version"
+version = "0x400003"
+required = false
