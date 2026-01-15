@@ -80,7 +80,7 @@ fn main() {
         // .add_systems(Update, inventory::dbg_print_inventory)
         .add_systems(Update, camera::camera_fit_inside_current_level)
         .add_plugins(misc_objects::MiscObjectsPlugin)
-        .add_plugins(WorldInspectorPlugin::new())
+        // .add_plugins(WorldInspectorPlugin::new())
         .add_plugins(DamagePlugin)
         .add_plugins(CombatPlugin)
         .add_plugins(game_over::GameOverPlugin)
