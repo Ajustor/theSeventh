@@ -730,6 +730,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "bevy_embedded_assets"
+version = "0.12.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2b0e583b2d6b80d44d9a9da6823892ed7e45653c7e3e98b67d9e38a8b98fe796"
+dependencies = [
+ "bevy",
+ "cargo-emit",
+ "futures-io",
+ "futures-lite",
+ "thiserror",
+]
+
+[[package]]
 name = "bevy_encase_derive"
 version = "0.15.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1606,6 +1619,12 @@ dependencies = [
  "wayland-backend",
  "wayland-client",
 ]
+
+[[package]]
+name = "cargo-emit"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1582e1c9e755dd6ad6b224dcffb135d199399a4568d454bd89fe515ca8425695"
 
 [[package]]
 name = "cc"
@@ -4543,6 +4562,7 @@ dependencies = [
  "bevy-inspector-egui",
  "bevy_ecs_ldtk",
  "bevy_ecs_tilemap",
+ "bevy_embedded_assets",
  "bevy_rapier2d",
  "derive-getters",
  "derive_more 0.99.19",
