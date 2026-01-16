@@ -25,3 +25,22 @@ bevy_rapier2d = "0.28.0"
 fake = { version = "2.8.0", features = ["uuid"] }
 rand = "0.8"
 bevy-inspector-egui = "0.28"
+
+# Android configuration for cargo-apk
+[package.metadata.android]
+package = "com.theseventh.game"
+apk_name = "TheSeventh"
+assets = "assets"
+resources = "res/android"
+build_targets = ["aarch64-linux-android", "armv7-linux-androideabi"]
+min_sdk_version = 35
+target_sdk_version = 35
+
+[package.metadata.android.application]
+label = "The Seventh"
+theme = "@android:style/Theme.NoTitleBar.Fullscreen"
+
+[package.metadata.android.activity]
+config_changes = "orientation|keyboardHidden|screenSize"
+launch_mode = "singleTop"
+orientation = "landscape"
