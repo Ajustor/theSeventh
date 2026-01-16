@@ -89,5 +89,7 @@ fn main() {
         .add_plugins(DamagePlugin)
         .add_plugins(CombatPlugin)
         .add_plugins(core::game_over::GameOverPlugin)
+        .add_plugins(gui::dialog::DialogPlugin)
+        .add_plugins(gui::tooltip::TooltipPlugin)
         .run();
 }
