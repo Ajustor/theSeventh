@@ -111,7 +111,7 @@ fn update_tooltip_positions(
     }
 }
 
-/// System to update tooltip visibility based on the Tooltip component
+/// System to update tooltip visibility and text based on the Tooltip component
 fn update_tooltip_visibility(
     entity_query: Query<&Tooltip, Changed<Tooltip>>,
     mut tooltip_query: Query<(&mut Visibility, &mut Text2d, &TooltipDisplay)>,
@@ -123,8 +123,10 @@ fn update_tooltip_visibility(
             } else {
                 Visibility::Hidden
             };
-            // Update text if changed
-            text.0 = tooltip.text.clone();
+            // Only update text if it has actually changed
+            if text.0 != tooltip.text {
+                text.0.clone_from(&tooltip.text);
+            }
         }
     }
 }

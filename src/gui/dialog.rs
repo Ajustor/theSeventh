@@ -91,54 +91,33 @@ impl Plugin for DialogPlugin {
 
 /// Creates a dialog box node with common styling
 fn create_dialog_box(commands: &mut Commands, at_top: bool, text: &str, speaker: Option<&str>) -> Entity {
+    // Create base node configuration with position-specific properties
+    let mut node = Node {
+        width: Val::Percent(80.0),
+        min_height: Val::Px(80.0),
+        position_type: PositionType::Absolute,
+        left: Val::Percent(10.0),
+        padding: UiRect::all(Val::Px(15.0)),
+        flex_direction: FlexDirection::Column,
+        align_items: AlignItems::FlexStart,
+        justify_content: JustifyContent::Center,
+        ..default()
+    };
+
+    // Set position-specific property
+    if at_top {
+        node.top = Val::Px(20.0);
+    } else {
+        node.bottom = Val::Px(20.0);
+    }
+
     let container = commands
         .spawn((
-            Node {
-                width: Val::Percent(80.0),
-                min_height: Val::Px(80.0),
-                position_type: PositionType::Absolute,
-                left: Val::Percent(10.0),
-                padding: UiRect::all(Val::Px(15.0)),
-                flex_direction: FlexDirection::Column,
-                align_items: AlignItems::FlexStart,
-                justify_content: JustifyContent::Center,
-                ..default()
-            },
+            node,
             BackgroundColor(Color::srgba(0.1, 0.1, 0.15, 0.9)),
             BorderRadius::all(Val::Px(10.0)),
         ))
         .id();
-
-    // Position at top or bottom
-    let position_component = if at_top {
-        Node {
-            width: Val::Percent(80.0),
-            min_height: Val::Px(80.0),
-            position_type: PositionType::Absolute,
-            left: Val::Percent(10.0),
-            top: Val::Px(20.0),
-            padding: UiRect::all(Val::Px(15.0)),
-            flex_direction: FlexDirection::Column,
-            align_items: AlignItems::FlexStart,
-            justify_content: JustifyContent::Center,
-            ..default()
-        }
-    } else {
-        Node {
-            width: Val::Percent(80.0),
-            min_height: Val::Px(80.0),
-            position_type: PositionType::Absolute,
-            left: Val::Percent(10.0),
-            bottom: Val::Px(20.0),
-            padding: UiRect::all(Val::Px(15.0)),
-            flex_direction: FlexDirection::Column,
-            align_items: AlignItems::FlexStart,
-            justify_content: JustifyContent::Center,
-            ..default()
-        }
-    };
-
-    commands.entity(container).insert(position_component);
 
     // Add marker component
     if at_top {
