@@ -45,6 +45,9 @@ impl GamepadState {
 /// Deadzone for analog sticks
 pub const STICK_DEADZONE: f32 = 0.2;
 
+/// Threshold for stick navigation in menus (higher than deadzone to avoid accidental navigation)
+pub const STICK_NAVIGATION_THRESHOLD: f32 = 0.5;
+
 /// Get the left stick X axis value from a gamepad
 pub fn get_left_stick_x(gamepads: &Query<&Gamepad>, gamepad_entity: Entity) -> f32 {
     if let Ok(gamepad) = gamepads.get(gamepad_entity) {

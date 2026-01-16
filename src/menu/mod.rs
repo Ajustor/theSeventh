@@ -4,7 +4,7 @@ use bevy::prelude::*;
 
 use crate::input::{
     get_left_stick_y, is_button_just_pressed, is_dpad_down_just_pressed,
-    is_dpad_up_just_pressed, GamepadState,
+    is_dpad_up_just_pressed, GamepadState, STICK_NAVIGATION_THRESHOLD,
 };
 use crate::GameState;
 use settings::*;
@@ -262,13 +262,13 @@ fn keyboard_navigation(
         }
         // Also support left stick for navigation with debounce
         let stick_y = get_left_stick_y(&gamepads, gamepad_entity);
-        if stick_y.abs() > 0.5 {
+        if stick_y.abs() > STICK_NAVIGATION_THRESHOLD {
             is_stick_navigating = true;
             // Only trigger navigation when stick first enters the zone
             if !stick_nav.was_navigating && direction == 0 {
-                if stick_y > 0.5 {
+                if stick_y > STICK_NAVIGATION_THRESHOLD {
                     direction = -1;
-                } else if stick_y < -0.5 {
+                } else if stick_y < -STICK_NAVIGATION_THRESHOLD {
                     direction = 1;
                 }
             }

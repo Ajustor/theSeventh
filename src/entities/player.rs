@@ -6,6 +6,7 @@ use crate::config::KeyBindings;
 use crate::gui::player_interface::PlayerInterfacePlugin;
 use crate::input::{
     get_left_stick_x, get_left_stick_y, is_button_just_pressed, GamepadState,
+    STICK_NAVIGATION_THRESHOLD,
 };
 use crate::GameState;
 use crate::physics::climbing::Climber;
@@ -148,7 +149,9 @@ pub fn player_movement(
             climber.climbing = false;
         } else if up > 0.0 || down > 0.0 {
             // Start climbing when moving up or down on climbable surface
-            if !climber.climbing && (up > 0.5 || down > 0.5) {
+            if !climber.climbing
+                && (up > STICK_NAVIGATION_THRESHOLD || down > STICK_NAVIGATION_THRESHOLD)
+            {
                 climber.climbing = true;
             }
         }
