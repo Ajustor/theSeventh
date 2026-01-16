@@ -12,9 +12,7 @@ pub fn setup(
 
     rapier_config.single_mut().gravity = Vec2::new(0.0, -2000.0);
 
-    let ldtk_handle = asset_server
-        .load("Typical_2D_platformer_example.ldtk")
-        .into();
+    let ldtk_handle = asset_server.load("the_seventh_map.ldtk").into();
     commands.spawn(LdtkWorldBundle {
         ldtk_handle,
         ..Default::default()
