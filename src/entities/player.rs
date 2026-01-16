@@ -4,6 +4,10 @@ use bevy_rapier2d::dynamics::Velocity;
 
 use crate::config::KeyBindings;
 use crate::gui::player_interface::PlayerInterfacePlugin;
+use crate::input::{
+    get_left_stick_x, get_left_stick_y, is_button_just_pressed, GamepadState,
+    STICK_NAVIGATION_THRESHOLD,
+};
 use crate::GameState;
 use crate::physics::climbing::Climber;
 use crate::core::inventory::Inventory;
@@ -82,16 +86,59 @@ pub struct PlayerBundle {
 pub fn player_movement(
     input: Res<ButtonInput<KeyCode>>,
     key_bindings: Res<KeyBindings>,
+    gamepad_state: Res<GamepadState>,
+    gamepads: Query<&Gamepad>,
     mut query: Query<(&mut Velocity, &mut Climber, &GroundDetection, &mut Side), With<Player>>,
 ) {
     for (mut velocity, mut climber, ground_detection, mut side) in &mut query {
-        let right = if input.pressed(key_bindings.move_right) { 1. } else { 0. };
-        let left = if input.pressed(key_bindings.move_left) { 1. } else { 0. };
+        let (right, left, up, down, jump) =
+            if let Some(gamepad_entity) = gamepad_state.active_gamepad {
+                // Gamepad input (has priority)
+                let stick_x = get_left_stick_x(&gamepads, gamepad_entity);
+                let stick_y = get_left_stick_y(&gamepads, gamepad_entity);
+
+                let right = if stick_x > 0.0 { stick_x } else { 0.0 };
+                let left = if stick_x < 0.0 { -stick_x } else { 0.0 };
+                let up = if stick_y > 0.0 { stick_y } else { 0.0 };
+                let down = if stick_y < 0.0 { -stick_y } else { 0.0 };
+                let jump = is_button_just_pressed(
+                    &gamepads,
+                    gamepad_entity,
+                    GamepadButton::South,
+                );
+
+                (right, left, up, down, jump)
+            } else {
+                // Keyboard input (fallback)
+                let right = if input.pressed(key_bindings.move_right) {
+                    1.0
+                } else {
+                    0.0
+                };
+                let left = if input.pressed(key_bindings.move_left) {
+                    1.0
+                } else {
+                    0.0
+                };
+                let up = if input.pressed(key_bindings.move_up) {
+                    1.0
+                } else {
+                    0.0
+                };
+                let down = if input.pressed(key_bindings.move_down) {
+                    1.0
+                } else {
+                    0.0
+                };
+                let jump = input.just_pressed(key_bindings.jump);
+
+                (right, left, up, down, jump)
+            };
 
         velocity.linvel.x = (right - left) * 200.;
 
-        if right > 0. || left > 0. {
-            if right > 0. {
+        if right > 0.0 || left > 0.0 {
+            if right > left {
                 *side = Side::Right;
             } else {
                 *side = Side::Left;
@@ -100,18 +147,20 @@ pub fn player_movement(
 
         if climber.intersecting_climbables.is_empty() {
             climber.climbing = false;
-        } else if input.just_pressed(key_bindings.move_up) || input.just_pressed(key_bindings.move_down) {
-            climber.climbing = true;
+        } else if up > 0.0 || down > 0.0 {
+            // Start climbing when moving up or down on climbable surface
+            if !climber.climbing
+                && (up > STICK_NAVIGATION_THRESHOLD || down > STICK_NAVIGATION_THRESHOLD)
+            {
+                climber.climbing = true;
+            }
         }
 
         if climber.climbing {
-            let up = if input.pressed(key_bindings.move_up) { 1. } else { 0. };
-            let down = if input.pressed(key_bindings.move_down) { 1. } else { 0. };
-
             velocity.linvel.y = (up - down) * 200.;
         }
 
-        if input.just_pressed(key_bindings.jump) && (ground_detection.on_ground || climber.climbing) {
+        if jump && (ground_detection.on_ground || climber.climbing) {
             velocity.linvel.y = 500.;
             climber.climbing = false;
         }
@@ -121,6 +170,8 @@ pub fn player_movement(
 pub fn player_actions(
     input: Res<ButtonInput<KeyCode>>,
     key_bindings: Res<KeyBindings>,
+    gamepad_state: Res<GamepadState>,
+    gamepads: Query<&Gamepad>,
     mut query: Query<(&Climber, &GroundDetection), With<Player>>,
 ) {
     for (climber, ground_detection) in &mut query {
@@ -128,7 +179,15 @@ pub fn player_actions(
             return;
         }
 
-        if input.just_pressed(key_bindings.interact) && ground_detection.on_ground {
+        let interact = if let Some(gamepad_entity) = gamepad_state.active_gamepad {
+            // Gamepad input (has priority) - use East button (B/Circle) for interact
+            is_button_just_pressed(&gamepads, gamepad_entity, GamepadButton::East)
+        } else {
+            // Keyboard input (fallback)
+            input.just_pressed(key_bindings.interact)
+        };
+
+        if interact && ground_detection.on_ground {
             dbg!("Open element");
         }
         // L'attaque est maintenant gérée par le CombatPlugin

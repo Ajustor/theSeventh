@@ -22,6 +22,8 @@ mod core;
 mod engine;
 mod entities;
 mod gui;
+/// Input handling (keyboard and gamepad)
+mod input;
 mod menu;
 /// Physics-related modules (colliders, climbing, ground detection, walls)
 mod physics;
@@ -59,6 +61,7 @@ fn main() {
                 }),
         )
         .add_plugins(config::ConfigPlugin)
+        .add_plugins(input::InputPlugin)
         .init_state::<GameState>()
         .add_plugins((
             LdtkPlugin,

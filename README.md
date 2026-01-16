@@ -82,13 +82,20 @@ Le jeu est organisé en plugins modulaires :
 
 ## 🎮 Contrôles
 
-### Menu
+### Menu (Clavier)
 | Touche | Action |
 |--------|--------|
 | ↑/↓ ou W/S | Naviguer dans le menu |
 | Entrée/Espace | Sélectionner |
 
-### En jeu
+### Menu (Manette)
+| Bouton | Action |
+|--------|--------|
+| D-Pad ↑/↓ ou Stick gauche | Naviguer dans le menu |
+| A (Xbox) / Croix (PlayStation) | Sélectionner |
+| B (Xbox) / Rond (PlayStation) | Retour (dans les options) |
+
+### En jeu (Clavier)
 | Touche | Action |
 |--------|--------|
 | A/D | Se déplacer gauche/droite |
@@ -96,6 +103,16 @@ Le jeu est organisé en plugins modulaires :
 | Espace | Sauter |
 | K | Attaquer (slash) |
 | O | Interagir (ouvrir) |
+
+### En jeu (Manette)
+| Bouton | Action |
+|--------|--------|
+| Stick gauche | Se déplacer / Grimper |
+| A (Xbox) / Croix (PlayStation) | Sauter |
+| X (Xbox) / Carré (PlayStation) | Attaquer (slash) |
+| B (Xbox) / Rond (PlayStation) | Interagir (ouvrir) |
+
+> **Note :** Si une manette est détectée, elle est prioritaire sur le clavier et la souris. Les options de configuration des touches clavier sont masquées dans le menu des options lorsqu'une manette est connectée.
 
 ## 🚀 Installation et exécution
 
