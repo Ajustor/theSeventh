@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
 
-use crate::colliders::ColliderBundle;
+use crate::physics::colliders::ColliderBundle;
 
 #[derive(Clone, Default, Bundle, LdtkEntity)]
 pub struct ChestBundle {
