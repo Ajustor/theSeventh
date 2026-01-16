@@ -10,10 +10,6 @@ pub struct SettingsEntity;
 #[derive(Component)]
 pub struct BackButton;
 
-/// Marker for volume slider
-#[derive(Component)]
-pub struct VolumeSlider;
-
 /// Marker for volume value text
 #[derive(Component)]
 pub struct VolumeValueText;
