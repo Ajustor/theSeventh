@@ -33,6 +33,7 @@ apk_name = "TheSeventh"
 assets = "assets"
 resources = "res/android"
 build_targets = ["aarch64-linux-android", "armv7-linux-androideabi"]
+compile_sdk_version = 35
 min_sdk_version = 35
 target_sdk_version = 35
 
