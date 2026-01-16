@@ -40,6 +40,7 @@ jobs:
 
       - name: Install Android SDK components
         run: |
+          sdkmanager "platforms;android-30"
           sdkmanager "platforms;android-${{ env.ANDROID_SDK_VERSION }}"
           sdkmanager "ndk;${{ env.ANDROID_NDK_VERSION }}"
           sdkmanager "build-tools;35.0.0"
