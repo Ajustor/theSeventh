@@ -4,8 +4,10 @@ use bevy_rapier2d::dynamics::Velocity;
 
 use crate::gui::player_interface::PlayerInterfacePlugin;
 use crate::GameState;
-use crate::{climbing::Climber, inventory::Inventory};
-use crate::{colliders::ColliderBundle, ground_detection::GroundDetection};
+use crate::physics::climbing::Climber;
+use crate::core::inventory::Inventory;
+use crate::physics::colliders::ColliderBundle;
+use crate::physics::ground_detection::GroundDetection;
 
 use super::player_animation::PlayerAnimationPlugin;
 use super::stats::Stats;
