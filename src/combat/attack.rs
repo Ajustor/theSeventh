@@ -4,6 +4,7 @@ use bevy_rapier2d::prelude::*;
 use crate::config::KeyBindings;
 use crate::engine::damage::DamageEvent;
 use crate::entities::player::{Player, Side};
+use crate::input::{is_button_just_pressed, GamepadState};
 
 /// Marqueur pour la hitbox d'attaque
 #[derive(Component)]
@@ -60,14 +61,22 @@ pub fn setup_player_attack(
 pub fn handle_attack_input(
     input: Res<ButtonInput<KeyCode>>,
     key_bindings: Res<KeyBindings>,
+    gamepad_state: Res<GamepadState>,
+    gamepads: Query<&Gamepad>,
     mut query: Query<(Entity, &Transform, &Side, &mut AttackState), With<Player>>,
     mut commands: Commands,
 ) {
     for (player_entity, transform, side, mut attack_state) in query.iter_mut() {
-        if input.just_pressed(key_bindings.attack)
-            && attack_state.can_attack
-            && !attack_state.is_attacking
-        {
+        // Check attack input from gamepad (priority) or keyboard
+        let attack_pressed = if let Some(gamepad_entity) = gamepad_state.active_gamepad {
+            // Gamepad: use West button (X/Square) for attack
+            is_button_just_pressed(&gamepads, gamepad_entity, GamepadButton::West)
+        } else {
+            // Keyboard fallback
+            input.just_pressed(key_bindings.attack)
+        };
+
+        if attack_pressed && attack_state.can_attack && !attack_state.is_attacking {
             attack_state.is_attacking = true;
             attack_state.can_attack = false;
             attack_state.attack_timer.reset();

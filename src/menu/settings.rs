@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 
 use crate::config::{AudioConfig, GameConfig, KeyBindings};
+use crate::input::GamepadState;
 
 /// Marker for settings menu entities
 #[derive(Component)]
@@ -27,6 +28,14 @@ pub struct VolumeIncreaseButton;
 pub struct KeyBindingButton {
     pub action: KeyAction,
 }
+
+/// Marker for the key bindings section container (to hide when gamepad is connected)
+#[derive(Component)]
+pub struct KeyBindingsSection;
+
+/// Marker for the instructions text (to hide when gamepad is connected)
+#[derive(Component)]
+pub struct KeyBindingsInstructions;
 
 /// Key actions that can be remapped
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -156,7 +165,9 @@ pub fn setup_settings_menu(
     mut commands: Commands,
     key_bindings: Res<KeyBindings>,
     audio_config: Res<AudioConfig>,
+    gamepad_state: Res<GamepadState>,
 ) {
+    let gamepad_connected = gamepad_state.is_connected();
     // Camera for the settings UI
     commands.spawn((Camera2d, SettingsEntity));
 
@@ -290,105 +301,125 @@ pub fn setup_settings_menu(
                         });
                 });
 
-            // Key bindings section
-            parent
-                .spawn(Node {
-                    flex_direction: FlexDirection::Column,
-                    align_items: AlignItems::Center,
-                    row_gap: Val::Px(8.0),
-                    margin: UiRect::bottom(Val::Px(20.0)),
-                    ..default()
-                })
-                .with_children(|parent| {
-                    // Key bindings label
-                    parent.spawn((
-                        Text::new("Contrôles"),
-                        TextFont {
-                            font_size: 24.0,
-                            ..default()
-                        },
-                        TextColor(Color::srgb(0.8, 0.8, 0.8)),
+            // Key bindings section - only show when no gamepad is connected
+            if !gamepad_connected {
+                parent
+                    .spawn((
                         Node {
-                            margin: UiRect::bottom(Val::Px(10.0)),
+                            flex_direction: FlexDirection::Column,
+                            align_items: AlignItems::Center,
+                            row_gap: Val::Px(8.0),
+                            margin: UiRect::bottom(Val::Px(20.0)),
                             ..default()
                         },
-                    ));
-
-                    // Key binding rows
-                    let actions = [
-                        KeyAction::MoveLeft,
-                        KeyAction::MoveRight,
-                        KeyAction::MoveUp,
-                        KeyAction::MoveDown,
-                        KeyAction::Jump,
-                        KeyAction::Attack,
-                        KeyAction::Interact,
-                    ];
-
-                    for action in actions {
-                        parent
-                            .spawn(Node {
-                                flex_direction: FlexDirection::Row,
-                                align_items: AlignItems::Center,
-                                justify_content: JustifyContent::SpaceBetween,
-                                width: Val::Px(300.0),
+                        KeyBindingsSection,
+                    ))
+                    .with_children(|parent| {
+                        // Key bindings label
+                        parent.spawn((
+                            Text::new("Contrôles"),
+                            TextFont {
+                                font_size: 24.0,
                                 ..default()
-                            })
-                            .with_children(|parent| {
-                                // Action label
-                                parent.spawn((
-                                    Text::new(action.label()),
-                                    TextFont {
-                                        font_size: 20.0,
-                                        ..default()
-                                    },
-                                    TextColor(Color::srgb(0.7, 0.7, 0.7)),
-                                ));
+                            },
+                            TextColor(Color::srgb(0.8, 0.8, 0.8)),
+                            Node {
+                                margin: UiRect::bottom(Val::Px(10.0)),
+                                ..default()
+                            },
+                        ));
 
-                                // Key button
-                                parent
-                                    .spawn((
-                                        Button,
-                                        Node {
-                                            width: Val::Px(100.0),
-                                            height: Val::Px(35.0),
-                                            justify_content: JustifyContent::Center,
-                                            align_items: AlignItems::Center,
+                        // Key binding rows
+                        let actions = [
+                            KeyAction::MoveLeft,
+                            KeyAction::MoveRight,
+                            KeyAction::MoveUp,
+                            KeyAction::MoveDown,
+                            KeyAction::Jump,
+                            KeyAction::Attack,
+                            KeyAction::Interact,
+                        ];
+
+                        for action in actions {
+                            parent
+                                .spawn(Node {
+                                    flex_direction: FlexDirection::Row,
+                                    align_items: AlignItems::Center,
+                                    justify_content: JustifyContent::SpaceBetween,
+                                    width: Val::Px(300.0),
+                                    ..default()
+                                })
+                                .with_children(|parent| {
+                                    // Action label
+                                    parent.spawn((
+                                        Text::new(action.label()),
+                                        TextFont {
+                                            font_size: 20.0,
                                             ..default()
                                         },
-                                        BackgroundColor(NORMAL_BUTTON),
-                                        BorderRadius::all(Val::Px(5.0)),
-                                        KeyBindingButton { action },
-                                    ))
-                                    .with_children(|parent| {
-                                        let key = action.get_key(&key_bindings);
-                                        parent.spawn((
-                                            Text::new(keycode_to_string(key)),
-                                            TextFont {
-                                                font_size: 18.0,
+                                        TextColor(Color::srgb(0.7, 0.7, 0.7)),
+                                    ));
+
+                                    // Key button
+                                    parent
+                                        .spawn((
+                                            Button,
+                                            Node {
+                                                width: Val::Px(100.0),
+                                                height: Val::Px(35.0),
+                                                justify_content: JustifyContent::Center,
+                                                align_items: AlignItems::Center,
                                                 ..default()
                                             },
-                                            TextColor(Color::WHITE),
-                                            KeyValueText { action },
-                                        ));
-                                    });
-                            });
-                    }
-                });
+                                            BackgroundColor(NORMAL_BUTTON),
+                                            BorderRadius::all(Val::Px(5.0)),
+                                            KeyBindingButton { action },
+                                        ))
+                                        .with_children(|parent| {
+                                            let key = action.get_key(&key_bindings);
+                                            parent.spawn((
+                                                Text::new(keycode_to_string(key)),
+                                                TextFont {
+                                                    font_size: 18.0,
+                                                    ..default()
+                                                },
+                                                TextColor(Color::WHITE),
+                                                KeyValueText { action },
+                                            ));
+                                        });
+                                });
+                        }
+                    });
 
-            // Instructions
-            parent.spawn((
-                Text::new("Cliquez sur une touche pour la modifier"),
-                TextFont {
-                    font_size: 14.0,
-                    ..default()
-                },
-                TextColor(Color::srgb(0.5, 0.5, 0.5)),
-                Node {
-                    margin: UiRect::bottom(Val::Px(20.0)),
-                    ..default()
-                },
-            ));
+                // Instructions for keyboard controls
+                parent.spawn((
+                    Text::new("Cliquez sur une touche pour la modifier"),
+                    TextFont {
+                        font_size: 14.0,
+                        ..default()
+                    },
+                    TextColor(Color::srgb(0.5, 0.5, 0.5)),
+                    Node {
+                        margin: UiRect::bottom(Val::Px(20.0)),
+                        ..default()
+                    },
+                    KeyBindingsInstructions,
+                ));
+            } else {
+                // Show message when gamepad is connected
+                parent.spawn((
+                    Text::new("Manette détectée - Contrôles clavier désactivés"),
+                    TextFont {
+                        font_size: 18.0,
+                        ..default()
+                    },
+                    TextColor(Color::srgb(0.6, 0.8, 0.6)),
+                    Node {
+                        margin: UiRect::bottom(Val::Px(20.0)),
+                        ..default()
+                    },
+                ));
+            }
 
             // Back button
             parent
@@ -546,8 +577,26 @@ pub fn capture_key_input(
 
 pub fn handle_back_button(
     interaction_query: Query<&Interaction, (Changed<Interaction>, With<BackButton>)>,
+    gamepad_state: Res<GamepadState>,
+    gamepads: Query<&Gamepad>,
     mut next_state: ResMut<NextState<super::SettingsMenuState>>,
 ) {
+    // Check for back action from gamepad (East button / B) or mouse click
+    let back_pressed = if let Some(gamepad_entity) = gamepad_state.active_gamepad {
+        if let Ok(gamepad) = gamepads.get(gamepad_entity) {
+            gamepad.just_pressed(GamepadButton::East)
+        } else {
+            false
+        }
+    } else {
+        false
+    };
+
+    if back_pressed {
+        next_state.set(super::SettingsMenuState::Closed);
+        return;
+    }
+
     for interaction in interaction_query.iter() {
         if *interaction == Interaction::Pressed {
             next_state.set(super::SettingsMenuState::Closed);

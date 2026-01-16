@@ -2,6 +2,10 @@ pub mod settings;
 
 use bevy::prelude::*;
 
+use crate::input::{
+    get_left_stick_y, is_button_just_pressed, is_dpad_down_just_pressed,
+    is_dpad_up_just_pressed, GamepadState,
+};
 use crate::GameState;
 use settings::*;
 
@@ -32,6 +36,13 @@ pub struct SelectedMenuButton {
     pub total: usize,
 }
 
+/// Resource to track stick navigation state (for debounce)
+#[derive(Resource, Default)]
+pub struct StickNavigationState {
+    /// Whether the stick was in a navigation position last frame
+    pub was_navigating: bool,
+}
+
 /// State for the settings menu
 #[derive(Debug, Clone, Copy, Default, Eq, PartialEq, Hash, States)]
 pub enum SettingsMenuState {
@@ -50,6 +61,7 @@ pub struct MenuPlugin;
 impl Plugin for MenuPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<SelectedMenuButton>()
+            .init_resource::<StickNavigationState>()
             .init_resource::<EditingKeyBinding>()
             .init_state::<SettingsMenuState>()
             .add_systems(OnEnter(GameState::Menu), setup_menu)
@@ -229,15 +241,51 @@ fn cleanup_menu(mut commands: Commands, menu_query: Query<Entity, With<MenuEntit
     }
 }
 
-/// Navigation clavier dans le menu
-fn keyboard_navigation(input: Res<ButtonInput<KeyCode>>, mut selected: ResMut<SelectedMenuButton>) {
+/// Navigation clavier et manette dans le menu
+fn keyboard_navigation(
+    input: Res<ButtonInput<KeyCode>>,
+    gamepad_state: Res<GamepadState>,
+    gamepads: Query<&Gamepad>,
+    mut selected: ResMut<SelectedMenuButton>,
+    mut stick_nav: ResMut<StickNavigationState>,
+) {
     let mut direction: i32 = 0;
+    let mut is_stick_navigating = false;
 
-    if input.just_pressed(KeyCode::ArrowUp) || input.just_pressed(KeyCode::KeyW) {
-        direction = -1;
+    if let Some(gamepad_entity) = gamepad_state.active_gamepad {
+        // Gamepad navigation (has priority)
+        if is_dpad_up_just_pressed(&gamepads, gamepad_entity) {
+            direction = -1;
+        }
+        if is_dpad_down_just_pressed(&gamepads, gamepad_entity) {
+            direction = 1;
+        }
+        // Also support left stick for navigation with debounce
+        let stick_y = get_left_stick_y(&gamepads, gamepad_entity);
+        if stick_y.abs() > 0.5 {
+            is_stick_navigating = true;
+            // Only trigger navigation when stick first enters the zone
+            if !stick_nav.was_navigating && direction == 0 {
+                if stick_y > 0.5 {
+                    direction = -1;
+                } else if stick_y < -0.5 {
+                    direction = 1;
+                }
+            }
+        }
     }
-    if input.just_pressed(KeyCode::ArrowDown) || input.just_pressed(KeyCode::KeyS) {
-        direction = 1;
+
+    // Update stick navigation state for next frame
+    stick_nav.was_navigating = is_stick_navigating;
+
+    // Keyboard navigation (fallback if no gamepad direction)
+    if direction == 0 {
+        if input.just_pressed(KeyCode::ArrowUp) || input.just_pressed(KeyCode::KeyW) {
+            direction = -1;
+        }
+        if input.just_pressed(KeyCode::ArrowDown) || input.just_pressed(KeyCode::KeyS) {
+            direction = 1;
+        }
     }
 
     if direction != 0 {
@@ -246,15 +294,26 @@ fn keyboard_navigation(input: Res<ButtonInput<KeyCode>>, mut selected: ResMut<Se
     }
 }
 
-/// Validation avec Entrée ou Espace
+/// Validation avec Entrée, Espace ou bouton A de la manette
 fn keyboard_selection(
     input: Res<ButtonInput<KeyCode>>,
+    gamepad_state: Res<GamepadState>,
+    gamepads: Query<&Gamepad>,
     selected: Res<SelectedMenuButton>,
     mut next_state: ResMut<NextState<GameState>>,
     mut settings_state: ResMut<NextState<SettingsMenuState>>,
     mut exit: EventWriter<AppExit>,
 ) {
-    if input.just_pressed(KeyCode::Enter) || input.just_pressed(KeyCode::Space) {
+    // Check for selection input from gamepad (priority) or keyboard
+    let select_pressed = if let Some(gamepad_entity) = gamepad_state.active_gamepad {
+        // Gamepad: South button (A/Cross) to select
+        is_button_just_pressed(&gamepads, gamepad_entity, GamepadButton::South)
+    } else {
+        false
+    } || input.just_pressed(KeyCode::Enter)
+        || input.just_pressed(KeyCode::Space);
+
+    if select_pressed {
         match selected.index {
             0 => next_state.set(GameState::InGame), // Jouer
             1 => settings_state.set(SettingsMenuState::Open), // Options
