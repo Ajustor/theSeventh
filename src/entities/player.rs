@@ -2,6 +2,7 @@ use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
 use bevy_rapier2d::dynamics::Velocity;
 
+use crate::config::KeyBindings;
 use crate::gui::player_interface::PlayerInterfacePlugin;
 use crate::GameState;
 use crate::physics::climbing::Climber;
@@ -80,11 +81,12 @@ pub struct PlayerBundle {
 
 pub fn player_movement(
     input: Res<ButtonInput<KeyCode>>,
+    key_bindings: Res<KeyBindings>,
     mut query: Query<(&mut Velocity, &mut Climber, &GroundDetection, &mut Side), With<Player>>,
 ) {
     for (mut velocity, mut climber, ground_detection, mut side) in &mut query {
-        let right = if input.pressed(KeyCode::KeyD) { 1. } else { 0. };
-        let left = if input.pressed(KeyCode::KeyA) { 1. } else { 0. };
+        let right = if input.pressed(key_bindings.move_right) { 1. } else { 0. };
+        let left = if input.pressed(key_bindings.move_left) { 1. } else { 0. };
 
         velocity.linvel.x = (right - left) * 200.;
 
@@ -98,18 +100,18 @@ pub fn player_movement(
 
         if climber.intersecting_climbables.is_empty() {
             climber.climbing = false;
-        } else if input.just_pressed(KeyCode::KeyW) || input.just_pressed(KeyCode::KeyS) {
+        } else if input.just_pressed(key_bindings.move_up) || input.just_pressed(key_bindings.move_down) {
             climber.climbing = true;
         }
 
         if climber.climbing {
-            let up = if input.pressed(KeyCode::KeyW) { 1. } else { 0. };
-            let down = if input.pressed(KeyCode::KeyS) { 1. } else { 0. };
+            let up = if input.pressed(key_bindings.move_up) { 1. } else { 0. };
+            let down = if input.pressed(key_bindings.move_down) { 1. } else { 0. };
 
             velocity.linvel.y = (up - down) * 200.;
         }
 
-        if input.just_pressed(KeyCode::Space) && (ground_detection.on_ground || climber.climbing) {
+        if input.just_pressed(key_bindings.jump) && (ground_detection.on_ground || climber.climbing) {
             velocity.linvel.y = 500.;
             climber.climbing = false;
         }
@@ -118,6 +120,7 @@ pub fn player_movement(
 
 pub fn player_actions(
     input: Res<ButtonInput<KeyCode>>,
+    key_bindings: Res<KeyBindings>,
     mut query: Query<(&Climber, &GroundDetection), With<Player>>,
 ) {
     for (climber, ground_detection) in &mut query {
@@ -125,7 +128,7 @@ pub fn player_actions(
             return;
         }
 
-        if input.just_pressed(KeyCode::KeyO) && ground_detection.on_ground {
+        if input.just_pressed(key_bindings.interact) && ground_detection.on_ground {
             dbg!("Open element");
         }
         // L'attaque est maintenant gérée par le CombatPlugin

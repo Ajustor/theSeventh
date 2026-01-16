@@ -1,6 +1,9 @@
+pub mod settings;
+
 use bevy::prelude::*;
 
 use crate::GameState;
+use settings::*;
 
 /// Marqueur pour les entités du menu
 #[derive(Component)]
@@ -9,6 +12,10 @@ pub struct MenuEntity;
 /// Marqueur pour le bouton "Jouer"
 #[derive(Component)]
 pub struct PlayButton;
+
+/// Marqueur pour le bouton "Options"
+#[derive(Component)]
+pub struct OptionsButton;
 
 /// Marqueur pour le bouton "Quitter"
 #[derive(Component)]
@@ -25,6 +32,14 @@ pub struct SelectedMenuButton {
     pub total: usize,
 }
 
+/// State for the settings menu
+#[derive(Debug, Clone, Copy, Default, Eq, PartialEq, Hash, States)]
+pub enum SettingsMenuState {
+    #[default]
+    Closed,
+    Open,
+}
+
 const NORMAL_BUTTON: Color = Color::srgb(0.15, 0.15, 0.15);
 const HOVERED_BUTTON: Color = Color::srgb(0.25, 0.25, 0.25);
 const SELECTED_BUTTON: Color = Color::srgb(0.3, 0.5, 0.8);
@@ -35,6 +50,8 @@ pub struct MenuPlugin;
 impl Plugin for MenuPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<SelectedMenuButton>()
+            .init_resource::<EditingKeyBinding>()
+            .init_state::<SettingsMenuState>()
             .add_systems(OnEnter(GameState::Menu), setup_menu)
             .add_systems(OnExit(GameState::Menu), cleanup_menu)
             .add_systems(
@@ -45,9 +62,28 @@ impl Plugin for MenuPlugin {
                     button_system,
                     update_button_visuals,
                     play_button_action,
+                    options_button_action,
                     quit_button_action,
                 )
-                    .run_if(in_state(GameState::Menu)),
+                    .run_if(in_state(GameState::Menu))
+                    .run_if(in_state(SettingsMenuState::Closed)),
+            )
+            // Settings menu systems
+            .add_systems(OnEnter(SettingsMenuState::Open), setup_settings_menu)
+            .add_systems(OnExit(SettingsMenuState::Open), cleanup_settings_menu)
+            .add_systems(
+                Update,
+                (
+                    handle_volume_buttons,
+                    handle_volume_button_hover,
+                    handle_key_binding_buttons,
+                    update_key_binding_button_colors,
+                    capture_key_input,
+                    handle_back_button,
+                    handle_back_button_hover,
+                )
+                    .run_if(in_state(GameState::Menu))
+                    .run_if(in_state(SettingsMenuState::Open)),
             );
     }
 }
@@ -55,7 +91,7 @@ impl Plugin for MenuPlugin {
 fn setup_menu(mut commands: Commands, mut selected: ResMut<SelectedMenuButton>) {
     // Réinitialiser la sélection
     selected.index = 0;
-    selected.total = 2; // Nombre de boutons
+    selected.total = 3; // Nombre de boutons (Jouer, Options, Quitter)
 
     // Caméra UI pour le menu
     commands.spawn((Camera2d, MenuEntity));
@@ -117,7 +153,34 @@ fn setup_menu(mut commands: Commands, mut selected: ResMut<SelectedMenuButton>) 
                     ));
                 });
 
-            // Bouton Quitter (index 1)
+            // Bouton Options (index 1)
+            parent
+                .spawn((
+                    Button,
+                    Node {
+                        width: Val::Px(200.0),
+                        height: Val::Px(65.0),
+                        justify_content: JustifyContent::Center,
+                        align_items: AlignItems::Center,
+                        ..default()
+                    },
+                    BackgroundColor(NORMAL_BUTTON),
+                    BorderRadius::all(Val::Px(8.0)),
+                    OptionsButton,
+                    MenuButtonIndex(1),
+                ))
+                .with_children(|parent| {
+                    parent.spawn((
+                        Text::new("Options"),
+                        TextFont {
+                            font_size: 33.0,
+                            ..default()
+                        },
+                        TextColor(Color::srgb(0.9, 0.9, 0.9)),
+                    ));
+                });
+
+            // Bouton Quitter (index 2)
             parent
                 .spawn((
                     Button,
@@ -131,7 +194,7 @@ fn setup_menu(mut commands: Commands, mut selected: ResMut<SelectedMenuButton>) 
                     BackgroundColor(NORMAL_BUTTON),
                     BorderRadius::all(Val::Px(8.0)),
                     QuitButton,
-                    MenuButtonIndex(1),
+                    MenuButtonIndex(2),
                 ))
                 .with_children(|parent| {
                     parent.spawn((
@@ -188,12 +251,14 @@ fn keyboard_selection(
     input: Res<ButtonInput<KeyCode>>,
     selected: Res<SelectedMenuButton>,
     mut next_state: ResMut<NextState<GameState>>,
+    mut settings_state: ResMut<NextState<SettingsMenuState>>,
     mut exit: EventWriter<AppExit>,
 ) {
     if input.just_pressed(KeyCode::Enter) || input.just_pressed(KeyCode::Space) {
         match selected.index {
             0 => next_state.set(GameState::InGame), // Jouer
-            1 => {
+            1 => settings_state.set(SettingsMenuState::Open), // Options
+            2 => {
                 exit.send(AppExit::Success); // Quitter
             }
             _ => {}
@@ -260,6 +325,17 @@ fn play_button_action(
     for interaction in &interaction_query {
         if *interaction == Interaction::Pressed {
             next_state.set(GameState::InGame);
+        }
+    }
+}
+
+fn options_button_action(
+    interaction_query: Query<&Interaction, (Changed<Interaction>, With<OptionsButton>)>,
+    mut settings_state: ResMut<NextState<SettingsMenuState>>,
+) {
+    for interaction in &interaction_query {
+        if *interaction == Interaction::Pressed {
+            settings_state.set(SettingsMenuState::Open);
         }
     }
 }

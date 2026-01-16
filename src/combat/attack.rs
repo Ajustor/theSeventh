@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
+use crate::config::KeyBindings;
 use crate::engine::damage::DamageEvent;
 use crate::entities::player::{Player, Side};
 
@@ -58,11 +59,12 @@ pub fn setup_player_attack(
 
 pub fn handle_attack_input(
     input: Res<ButtonInput<KeyCode>>,
+    key_bindings: Res<KeyBindings>,
     mut query: Query<(Entity, &Transform, &Side, &mut AttackState), With<Player>>,
     mut commands: Commands,
 ) {
     for (player_entity, transform, side, mut attack_state) in query.iter_mut() {
-        if input.just_pressed(KeyCode::KeyK)
+        if input.just_pressed(key_bindings.attack)
             && attack_state.can_attack
             && !attack_state.is_attacking
         {

@@ -15,6 +15,8 @@ pub const WINDOW_HEIGHT: usize = 720;
 pub const WINDOW_WIDTH: usize = 1080;
 
 mod combat;
+/// Configuration module (key bindings, volume, etc.)
+mod config;
 /// Core game systems (camera, game flow, inventory, game over)
 mod core;
 mod engine;
@@ -56,6 +58,7 @@ fn main() {
                     ..default()
                 }),
         )
+        .add_plugins(config::ConfigPlugin)
         .init_state::<GameState>()
         .add_plugins((
             LdtkPlugin,
