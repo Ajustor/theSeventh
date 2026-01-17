@@ -41,15 +41,21 @@ jobs:
       - name: Install Android SDK components
         run: |
           echo "Installing Android SDK components..."
+          echo "Accepting licenses..."
           yes | sdkmanager --licenses || true
-          sdkmanager "platforms;android-30"
-          sdkmanager "platforms;android-${{ env.ANDROID_SDK_VERSION }}"
-          sdkmanager "ndk;${{ env.ANDROID_NDK_VERSION }}"
-          sdkmanager "build-tools;35.0.0"
+          echo "Installing platform-30 (required by cargo-apk)..."
+          sdkmanager --install "platforms;android-30"
+          echo "Installing platform-${{ env.ANDROID_SDK_VERSION }} (target SDK)..."
+          sdkmanager --install "platforms;android-${{ env.ANDROID_SDK_VERSION }}"
+          echo "Installing NDK..."
+          sdkmanager --install "ndk;${{ env.ANDROID_NDK_VERSION }}"
+          echo "Installing build-tools..."
+          sdkmanager --install "build-tools;35.0.0"
+          echo "Verifying installations:"
           echo "Installed platforms:"
           ls -la $ANDROID_HOME/platforms/
-          echo "Verifying android-30:"
-          test -d $ANDROID_HOME/platforms/android-30 && echo "android-30 directory exists" || echo "android-30 directory NOT found"
+          echo "Verifying android-30 directory:"
+          test -d $ANDROID_HOME/platforms/android-30 && echo "✓ android-30 directory exists" || echo "✗ android-30 directory NOT found"
 
       - name: Install cargo-apk
         run: cargo install cargo-apk
