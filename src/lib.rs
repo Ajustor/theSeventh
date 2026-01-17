@@ -16,7 +16,6 @@ pub mod world;
 use bevy::{prelude::*, window::WindowResolution};
 use bevy_ecs_ldtk::prelude::*;
 use bevy_embedded_assets::{EmbeddedAssetPlugin, PluginMode};
-use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_rapier2d::prelude::*;
 use engine::damage::DamagePlugin;
 use crate::combat::CombatPlugin;
@@ -33,11 +32,11 @@ pub enum GameState {
     GameOver,
 }
 
-// This is the Android entry point that cargo-apk will use
-#[bevy_main]
-fn bevy_main() {
-    App::new()
-        .add_plugins(EmbeddedAssetPlugin {
+// Shared App setup function used by both desktop and Android builds
+pub fn setup_app() -> App {
+    let mut app = App::new();
+    
+    app.add_plugins(EmbeddedAssetPlugin {
             mode: PluginMode::ReplaceDefault,
         })
         .add_plugins(
@@ -86,6 +85,13 @@ fn bevy_main() {
         .add_plugins(CombatPlugin)
         .add_plugins(core::game_over::GameOverPlugin)
         .add_plugins(gui::dialog::DialogPlugin)
-        .add_plugins(gui::tooltip::TooltipPlugin)
-        .run();
+        .add_plugins(gui::tooltip::TooltipPlugin);
+    
+    app
+}
+
+// This is the Android entry point that cargo-apk will use
+#[bevy_main]
+fn bevy_main() {
+    setup_app().run();
 }
