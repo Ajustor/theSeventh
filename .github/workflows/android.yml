@@ -105,7 +105,7 @@ jobs:
           echo "ANDROID_NDK_ROOT: $ANDROID_NDK_ROOT"
           echo "Checking platforms directory:"
           ls -la $ANDROID_HOME/platforms/ || echo "Platforms directory doesn't exist!"
-          cargo apk build
+          cargo apk build --lib
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
