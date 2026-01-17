@@ -40,10 +40,13 @@ jobs:
 
       - name: Install Android SDK components
         run: |
+          echo "Installing Android SDK components..."
           sdkmanager "platforms;android-30"
           sdkmanager "platforms;android-${{ env.ANDROID_SDK_VERSION }}"
           sdkmanager "ndk;${{ env.ANDROID_NDK_VERSION }}"
           sdkmanager "build-tools;35.0.0"
+          echo "Installed platforms:"
+          ls -la $ANDROID_HOME/platforms/
 
       - name: Install cargo-apk
         run: cargo install cargo-apk
@@ -61,9 +64,14 @@ jobs:
 
       - name: Build APK
         env:
+          ANDROID_HOME: ${{ env.ANDROID_HOME }}
           ANDROID_SDK_ROOT: ${{ env.ANDROID_HOME }}
           ANDROID_NDK_ROOT: ${{ env.ANDROID_HOME }}/ndk/${{ env.ANDROID_NDK_VERSION }}
         run: |
+          echo "ANDROID_HOME: $ANDROID_HOME"
+          echo "ANDROID_SDK_ROOT: $ANDROID_SDK_ROOT"
+          echo "Checking platforms directory:"
+          ls -la $ANDROID_HOME/platforms/
           cargo apk build --release
 
       - name: Upload APK artifact
