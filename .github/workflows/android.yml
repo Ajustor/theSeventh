@@ -41,23 +41,31 @@ jobs:
       - name: Install Android SDK components
         run: |
           echo "Installing Android SDK components..."
+          echo "Current ANDROID_HOME: $ANDROID_HOME"
+          echo "Listing available packages..."
+          sdkmanager --list | grep "platforms;android" | head -20
+          echo ""
           echo "Accepting licenses..."
           yes | sdkmanager --licenses || true
+          echo ""
           echo "Installing platform-30 (required by cargo-apk)..."
-          sdkmanager --install "platforms;android-30" --verbose
+          sdkmanager "platforms;android-30" --verbose
           if [ $? -ne 0 ]; then
             echo "Failed to install platform-30!"
             exit 1
           fi
+          echo ""
           echo "Installing platform-${{ env.ANDROID_SDK_VERSION }} (target SDK)..."
-          sdkmanager --install "platforms;android-${{ env.ANDROID_SDK_VERSION }}"
+          sdkmanager "platforms;android-${{ env.ANDROID_SDK_VERSION }}"
           echo "Installing NDK..."
-          sdkmanager --install "ndk;${{ env.ANDROID_NDK_VERSION }}"
+          sdkmanager "ndk;${{ env.ANDROID_NDK_VERSION }}"
           echo "Installing build-tools..."
-          sdkmanager --install "build-tools;35.0.0"
+          sdkmanager "build-tools;35.0.0"
+          echo ""
           echo "Verifying installations:"
           echo "Installed platforms:"
           ls -la $ANDROID_HOME/platforms/
+          echo ""
           echo "Verifying android-30 directory:"
           if [ -d "$ANDROID_HOME/platforms/android-30" ]; then
             echo "✓ android-30 directory exists"
@@ -65,6 +73,8 @@ jobs:
             ls -la "$ANDROID_HOME/platforms/android-30/"
           else
             echo "✗ android-30 directory NOT found"
+            echo "Available platforms:"
+            ls -la $ANDROID_HOME/platforms/ || echo "No platforms directory!"
             exit 1
           fi
 
