@@ -1,22 +1,32 @@
-use crate::{entities::player::Player, GameState};
-use bevy::prelude::*;
+use crate::{entities::player::Player, save::SaveMenuState, GameState};
+use bevy::{prelude::*, render::camera};
 use bevy_ecs_ldtk::prelude::*;
 use bevy_rapier2d::prelude::*;
+
+#[derive(Component)]
+pub struct GameWorldMarker;
+
+#[derive(Component)]
+pub struct GameCameraMarker;
 
 pub fn setup(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut rapier_config: Query<&mut RapierConfiguration>,
 ) {
-    commands.spawn(Camera2d);
+    commands.spawn((Camera2d, GameCameraMarker));
 
     rapier_config.single_mut().gravity = Vec2::new(0.0, -2000.0);
 
     let ldtk_handle = asset_server.load("the_seventh_map.ldtk").into();
-    commands.spawn(LdtkWorldBundle {
-        ldtk_handle,
-        ..Default::default()
-    });
+    commands.spawn((
+        LdtkWorldBundle {
+            ldtk_handle,
+            visibility: Visibility::Hidden,
+            ..Default::default()
+        },
+        GameWorldMarker,
+    ));
 }
 
 pub fn update_level_selection(
@@ -56,12 +66,52 @@ pub fn update_level_selection(
     }
 }
 
+pub fn show_world_when_loaded(
+    player_query: Query<&Transform, With<Player>>,
+    mut world_query: Query<&mut Visibility, With<GameWorldMarker>>,
+) {
+    // Si le joueur existe, afficher la carte
+    if player_query.get_single().is_ok() {
+        if let Ok(mut visibility) = world_query.get_single_mut() {
+            if *visibility == Visibility::Hidden {
+                *visibility = Visibility::Visible;
+                info!("Carte affichée - chargement complet");
+            }
+        }
+    }
+}
+
+pub fn cleanup_game_world(
+    mut commands: Commands,
+    world_query: Query<Entity, With<GameWorldMarker>>,
+    camera_query: Query<Entity, With<GameCameraMarker>>,
+) {
+    // Despawn la carte et tout ce qui est lié au jeu
+    for entity in world_query.iter() {
+        commands.entity(entity).despawn_recursive();
+    }
+
+    // Despawn la caméra du jeu
+    for entity in camera_query.iter() {
+        commands.entity(entity).despawn_recursive();
+    }
+
+    info!("Carte et caméra déchargées");
+}
+
 pub struct GameFlowPlugin;
 
 impl Plugin for GameFlowPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Update, update_level_selection)
             .add_systems(OnEnter(GameState::InGame), setup)
-            .add_systems(OnEnter(GameState::InGame), update_level_selection);
+            .add_systems(OnEnter(GameState::InGame), update_level_selection)
+            .add_systems(OnExit(GameState::InGame), cleanup_game_world)
+            .add_systems(
+                Update,
+                show_world_when_loaded
+                    .run_if(in_state(GameState::InGame))
+                    .run_if(in_state(SaveMenuState::Closed)),
+            );
     }
 }

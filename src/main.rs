@@ -5,7 +5,6 @@ use bevy::{prelude::*, window::WindowResolution};
 use bevy_ecs_ldtk::prelude::*;
 use bevy_embedded_assets::{EmbeddedAssetPlugin, PluginMode};
 
-use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_rapier2d::prelude::*;
 use engine::damage::DamagePlugin;
 
@@ -27,6 +26,8 @@ mod input;
 mod menu;
 /// Physics-related modules (colliders, climbing, ground detection, walls)
 mod physics;
+mod save;
+
 /// World objects (chests, doors, etc.)
 mod world;
 
@@ -34,6 +35,7 @@ mod world;
 pub enum GameState {
     #[default]
     Menu,
+    LoadGame,
     InGame,
     _Inventory,
     GameOver,
@@ -84,6 +86,7 @@ fn main() {
         .add_plugins(entities::enemy::EnemyPlugin)
         // .add_systems(Update, core::inventory::dbg_print_inventory)
         .add_systems(Update, core::camera::camera_fit_inside_current_level)
+        .add_plugins(save::SavePlugin)
         .add_plugins(world::objects::MiscObjectsPlugin)
         // .add_plugins(WorldInspectorPlugin::new())
         .add_plugins(DamagePlugin)

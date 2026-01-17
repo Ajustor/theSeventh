@@ -3,16 +3,16 @@ use bevy_ecs_ldtk::prelude::*;
 use bevy_rapier2d::dynamics::Velocity;
 
 use crate::config::KeyBindings;
+use crate::core::inventory::Inventory;
 use crate::gui::player_interface::PlayerInterfacePlugin;
 use crate::input::{
     get_left_stick_x, get_left_stick_y, is_button_just_pressed, GamepadState,
     STICK_NAVIGATION_THRESHOLD,
 };
-use crate::GameState;
 use crate::physics::climbing::Climber;
-use crate::core::inventory::Inventory;
 use crate::physics::colliders::ColliderBundle;
 use crate::physics::ground_detection::GroundDetection;
+use crate::GameState;
 
 use super::player_animation::PlayerAnimationPlugin;
 use super::stats::Stats;
@@ -101,11 +101,7 @@ pub fn player_movement(
                 let left = if stick_x < 0.0 { -stick_x } else { 0.0 };
                 let up = if stick_y > 0.0 { stick_y } else { 0.0 };
                 let down = if stick_y < 0.0 { -stick_y } else { 0.0 };
-                let jump = is_button_just_pressed(
-                    &gamepads,
-                    gamepad_entity,
-                    GamepadButton::South,
-                );
+                let jump = is_button_just_pressed(&gamepads, gamepad_entity, GamepadButton::South);
 
                 (right, left, up, down, jump)
             } else {
@@ -190,7 +186,6 @@ pub fn player_actions(
         if interact && ground_detection.on_ground {
             dbg!("Open element");
         }
-        // L'attaque est maintenant gérée par le CombatPlugin
     }
 }
 

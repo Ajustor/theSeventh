@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::GameState;
+use crate::{entities::player::Player, GameState};
 
 use super::attack::AttackHitEvent;
 
@@ -83,9 +83,6 @@ pub fn update_invincibility(time: Res<Time>, mut query: Query<&mut Health>) {
         }
     }
 }
-
-#[derive(Component)]
-pub struct Player;
 
 pub fn check_deaths(
     query: Query<(Entity, &Health), With<Player>>,

@@ -3,9 +3,10 @@ pub mod settings;
 use bevy::prelude::*;
 
 use crate::input::{
-    get_left_stick_y, is_button_just_pressed, is_dpad_down_just_pressed,
-    is_dpad_up_just_pressed, GamepadState, STICK_NAVIGATION_THRESHOLD,
+    get_left_stick_y, is_button_just_pressed, is_dpad_down_just_pressed, is_dpad_up_just_pressed,
+    GamepadState, STICK_NAVIGATION_THRESHOLD,
 };
+use crate::save::GameStartMenuState;
 use crate::GameState;
 use settings::*;
 
@@ -78,7 +79,8 @@ impl Plugin for MenuPlugin {
                     quit_button_action,
                 )
                     .run_if(in_state(GameState::Menu))
-                    .run_if(in_state(SettingsMenuState::Closed)),
+                    .run_if(in_state(SettingsMenuState::Closed))
+                    .run_if(in_state(GameStartMenuState::Closed)),
             )
             // Settings menu systems
             .add_systems(OnEnter(SettingsMenuState::Open), setup_settings_menu)
@@ -218,20 +220,6 @@ fn setup_menu(mut commands: Commands, mut selected: ResMut<SelectedMenuButton>) 
                         TextColor(Color::srgb(0.9, 0.9, 0.9)),
                     ));
                 });
-
-            // Instructions de navigation
-            parent.spawn((
-                Text::new("↑↓ ou W/S : Naviguer  |  Entrée/Espace : Sélectionner"),
-                TextFont {
-                    font_size: 16.0,
-                    ..default()
-                },
-                TextColor(Color::srgb(0.5, 0.5, 0.5)),
-                Node {
-                    margin: UiRect::top(Val::Px(40.0)),
-                    ..default()
-                },
-            ));
         });
 }
 
@@ -300,7 +288,7 @@ fn keyboard_selection(
     gamepad_state: Res<GamepadState>,
     gamepads: Query<&Gamepad>,
     selected: Res<SelectedMenuButton>,
-    mut next_state: ResMut<NextState<GameState>>,
+    mut game_start_state: ResMut<NextState<GameStartMenuState>>,
     mut settings_state: ResMut<NextState<SettingsMenuState>>,
     mut exit: EventWriter<AppExit>,
 ) {
@@ -315,8 +303,8 @@ fn keyboard_selection(
 
     if select_pressed {
         match selected.index {
-            0 => next_state.set(GameState::InGame), // Jouer
-            1 => settings_state.set(SettingsMenuState::Open), // Options
+            0 => game_start_state.set(GameStartMenuState::Open), // Jouer
+            1 => settings_state.set(SettingsMenuState::Open),    // Options
             2 => {
                 exit.send(AppExit::Success); // Quitter
             }
@@ -379,11 +367,11 @@ fn button_system(
 
 fn play_button_action(
     interaction_query: Query<&Interaction, (Changed<Interaction>, With<PlayButton>)>,
-    mut next_state: ResMut<NextState<GameState>>,
+    mut game_start_state: ResMut<NextState<GameStartMenuState>>,
 ) {
     for interaction in &interaction_query {
         if *interaction == Interaction::Pressed {
-            next_state.set(GameState::InGame);
+            game_start_state.set(GameStartMenuState::Open);
         }
     }
 }
