@@ -92,6 +92,10 @@ jobs:
             target/
           key: android-cargo-${{ hashFiles('**/Cargo.lock') }}
 
+      - name: Generate debug keystore
+        run: |
+          keytool -genkey -v -keystore debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
+
       - name: Build APK
         env:
           ANDROID_NDK_ROOT: ${{ env.ANDROID_HOME }}/ndk/${{ env.ANDROID_NDK_VERSION }}
@@ -101,13 +105,13 @@ jobs:
           echo "ANDROID_NDK_ROOT: $ANDROID_NDK_ROOT"
           echo "Checking platforms directory:"
           ls -la $ANDROID_HOME/platforms/ || echo "Platforms directory doesn't exist!"
-          cargo apk build --release
+          cargo apk build
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.GAME_NAME }}-android.apk
-          path: target/release/apk/*.apk
+          path: target/debug/apk/*.apk
 
   release-android:
     needs: build-android
