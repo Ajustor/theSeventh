@@ -1,3 +1,6 @@
 /target
 .qodo
 config.json
+
+# Android debug keystore (generated during build)
+debug.keystore

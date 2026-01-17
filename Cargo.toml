@@ -3,6 +3,9 @@ name = "theSeventh"
 version = "0.1.2"
 edition = "2021"
 
+[lib]
+crate-type = ["cdylib", "rlib"]
+
 [dependencies]
 bevy_ecs_tilemap = "0.15.0"
 bevy = "0.15.0"
@@ -36,6 +39,13 @@ build_targets = ["aarch64-linux-android", "armv7-linux-androideabi"]
 compile_sdk_version = 35
 min_sdk_version = 35
 target_sdk_version = 35
+
+# Debug signing configuration for development builds
+# Note: Uses standard Android debug keystore credentials
+# For production releases, configure a proper keystore with secure credentials
+[package.metadata.android.signing.debug]
+path = "debug.keystore"
+keystore_password = "android"
 
 [package.metadata.android.application]
 label = "The Seventh"

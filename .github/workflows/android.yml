@@ -40,9 +40,43 @@ jobs:
 
       - name: Install Android SDK components
         run: |
+          echo "Installing Android SDK components..."
+          echo "Current ANDROID_HOME: $ANDROID_HOME"
+          echo "Listing available packages..."
+          sdkmanager --list | grep "platforms;android" | head -20
+          echo ""
+          echo "Accepting licenses..."
+          yes | sdkmanager --licenses || true
+          echo ""
+          echo "Installing platform-30 (required by cargo-apk)..."
+          sdkmanager "platforms;android-30" --verbose
+          if [ $? -ne 0 ]; then
+            echo "Failed to install platform-30!"
+            exit 1
+          fi
+          echo ""
+          echo "Installing platform-${{ env.ANDROID_SDK_VERSION }} (target SDK)..."
           sdkmanager "platforms;android-${{ env.ANDROID_SDK_VERSION }}"
+          echo "Installing NDK..."
           sdkmanager "ndk;${{ env.ANDROID_NDK_VERSION }}"
+          echo "Installing build-tools..."
           sdkmanager "build-tools;35.0.0"
+          echo ""
+          echo "Verifying installations:"
+          echo "Installed platforms:"
+          ls -la $ANDROID_HOME/platforms/
+          echo ""
+          echo "Verifying android-30 directory:"
+          if [ -d "$ANDROID_HOME/platforms/android-30" ]; then
+            echo "✓ android-30 directory exists"
+            echo "Contents:"
+            ls -la "$ANDROID_HOME/platforms/android-30/"
+          else
+            echo "✗ android-30 directory NOT found"
+            echo "Available platforms:"
+            ls -la $ANDROID_HOME/platforms/ || echo "No platforms directory!"
+            exit 1
+          fi
 
       - name: Install cargo-apk
         run: cargo install cargo-apk
@@ -58,18 +92,26 @@ jobs:
             target/
           key: android-cargo-${{ hashFiles('**/Cargo.lock') }}
 
+      - name: Generate debug keystore
+        run: |
+          keytool -genkey -v -keystore debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
+
       - name: Build APK
         env:
-          ANDROID_SDK_ROOT: ${{ env.ANDROID_HOME }}
           ANDROID_NDK_ROOT: ${{ env.ANDROID_HOME }}/ndk/${{ env.ANDROID_NDK_VERSION }}
         run: |
-          cargo apk build --release
+          echo "ANDROID_HOME: $ANDROID_HOME"
+          echo "ANDROID_SDK_ROOT: ${ANDROID_SDK_ROOT:-$ANDROID_HOME}"
+          echo "ANDROID_NDK_ROOT: $ANDROID_NDK_ROOT"
+          echo "Checking platforms directory:"
+          ls -la $ANDROID_HOME/platforms/ || echo "Platforms directory doesn't exist!"
+          cargo apk build --lib
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.GAME_NAME }}-android.apk
-          path: target/release/apk/*.apk
+          path: target/debug/apk/*.apk
 
   release-android:
     needs: build-android
