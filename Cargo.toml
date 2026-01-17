@@ -41,7 +41,8 @@ min_sdk_version = 35
 target_sdk_version = 35
 
 # Debug signing configuration for development builds
-# For production releases, you should use a proper keystore
+# Note: Uses standard Android debug keystore credentials
+# For production releases, configure a proper keystore with secure credentials
 [package.metadata.android.signing.debug]
 path = "debug.keystore"
 keystore_password = "android"
