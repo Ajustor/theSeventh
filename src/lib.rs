@@ -1,17 +1,41 @@
-// This is the desktop entry point. For Android, see src/lib.rs
-#![allow(clippy::type_complexity)]
+// This is the library entry point for Android builds with cargo-apk.
+// Android uses this instead of main() from main.rs.
 
-// Use the library's implementation
-use theSeventh::*;
+// Re-export all modules from main.rs
+pub mod combat;
+pub mod config;
+pub mod core;
+pub mod engine;
+pub mod entities;
+pub mod gui;
+pub mod input;
+pub mod menu;
+pub mod physics;
+pub mod world;
 
-fn main() {
-    use bevy::{prelude::*, window::WindowResolution};
-    use bevy_ecs_ldtk::prelude::*;
-    use bevy_embedded_assets::{EmbeddedAssetPlugin, PluginMode};
-    use bevy_rapier2d::prelude::*;
-    use engine::damage::DamagePlugin;
-    use combat::CombatPlugin;
+use bevy::{prelude::*, window::WindowResolution};
+use bevy_ecs_ldtk::prelude::*;
+use bevy_embedded_assets::{EmbeddedAssetPlugin, PluginMode};
+use bevy_inspector_egui::quick::WorldInspectorPlugin;
+use bevy_rapier2d::prelude::*;
+use engine::damage::DamagePlugin;
+use crate::combat::CombatPlugin;
 
+pub const WINDOW_HEIGHT: usize = 720;
+pub const WINDOW_WIDTH: usize = 1080;
+
+#[derive(Debug, Clone, Copy, Default, Eq, PartialEq, Hash, States)]
+pub enum GameState {
+    #[default]
+    Menu,
+    InGame,
+    _Inventory,
+    GameOver,
+}
+
+// This is the Android entry point that cargo-apk will use
+#[bevy_main]
+fn bevy_main() {
     App::new()
         .add_plugins(EmbeddedAssetPlugin {
             mode: PluginMode::ReplaceDefault,
@@ -58,7 +82,7 @@ fn main() {
         .add_systems(Update, core::camera::camera_fit_inside_current_level)
         .add_plugins(world::objects::MiscObjectsPlugin)
         // .add_plugins(WorldInspectorPlugin::new())
-        .add_plugins(DamagePlugin)
+        .add_plugins(engine::damage::DamagePlugin)
         .add_plugins(CombatPlugin)
         .add_plugins(core::game_over::GameOverPlugin)
         .add_plugins(gui::dialog::DialogPlugin)
