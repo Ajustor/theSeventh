@@ -19,6 +19,7 @@ impl Plugin for SavePlugin {
             .init_state::<GameStartMenuState>()
             .init_resource::<SaveSlots>()
             .init_resource::<PendingLoadEvent>()
+            .init_resource::<LeversRestored>()
             .add_event::<LoadGameEvent>()
             .add_event::<DeleteSaveEvent>()
             .add_event::<StartNewGameEvent>()
@@ -29,10 +30,13 @@ impl Plugin for SavePlugin {
                     handle_save_game,
                     handle_load_game,
                     process_pending_load,
+                    restore_lever_states.run_if(in_state(GameState::InGame)),
                     handle_delete_save,
                     handle_start_new_game,
                 ),
             )
+            // Réinitialiser LeversRestored quand on entre en jeu
+            .add_systems(OnEnter(GameState::InGame), reset_levers_restored)
             // Menu de sauvegarde
             .add_systems(OnEnter(SaveMenuState::Open), spawn_save_menu)
             .add_systems(OnExit(SaveMenuState::Open), despawn_save_menu)
@@ -63,4 +67,9 @@ fn handle_start_new_game(
     for _ in events.read() {
         next_state.set(GameState::InGame);
     }
+}
+
+fn reset_levers_restored(mut levers_restored: ResMut<LeversRestored>) {
+    levers_restored.0 = false;
+    info!("LeversRestored réinitialisé");
 }

@@ -13,12 +13,20 @@ pub struct AttackHitbox {
     pub owner: Entity,
 }
 
+/// Direction de l'attaque
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub enum AttackDirection {
+    Horizontal,
+    Up,
+}
+
 /// Composant pour animer le slash de l'attaque
 #[derive(Component)]
 pub struct SlashAnimation {
     pub start_angle: f32,
     pub end_angle: f32,
     pub duration: Timer,
+    pub direction: AttackDirection,
 }
 
 /// État d'attaque du joueur
@@ -76,30 +84,52 @@ pub fn handle_attack_input(
             input.just_pressed(key_bindings.attack)
         };
 
+        // Vérifier si la touche haut est maintenue pendant l'attaque
+        let up_held = input.pressed(key_bindings.move_up);
+
         if attack_pressed && attack_state.can_attack && !attack_state.is_attacking {
             attack_state.is_attacking = true;
             attack_state.can_attack = false;
             attack_state.attack_timer.reset();
             attack_state.cooldown_timer.reset();
 
-            // Configuration selon le côté du joueur
-            let (offset_x, start_angle, end_angle) = match *side {
-                Side::Right => (
-                    16.0,
-                    std::f32::consts::FRAC_PI_4,
+            let direction = if up_held {
+                AttackDirection::Up
+            } else {
+                AttackDirection::Horizontal
+            };
+
+            // Configuration selon la direction de l'attaque
+            let (offset_x, offset_y, start_angle, end_angle, sprite_size) = match direction {
+                AttackDirection::Horizontal => match *side {
+                    Side::Right => (
+                        16.0,
+                        8.0,
+                        std::f32::consts::FRAC_PI_4,
+                        -std::f32::consts::FRAC_PI_2,
+                        Vec2::new(28.0, 6.0),
+                    ),
+                    Side::Left => (
+                        -16.0,
+                        8.0,
+                        -std::f32::consts::FRAC_PI_4,
+                        std::f32::consts::FRAC_PI_2,
+                        Vec2::new(28.0, 6.0),
+                    ),
+                },
+                AttackDirection::Up => (
+                    0.0,
+                    20.0,
                     -std::f32::consts::FRAC_PI_2,
-                ),
-                Side::Left => (
-                    -16.0,
-                    -std::f32::consts::FRAC_PI_4,
                     std::f32::consts::FRAC_PI_2,
+                    Vec2::new(6.0, 28.0),
                 ),
             };
 
-            // Position de départ (légèrement au-dessus du joueur)
+            // Position de départ
             let spawn_pos = Vec3::new(
                 transform.translation.x + offset_x,
-                transform.translation.y + 8.0,
+                transform.translation.y + offset_y,
                 transform.translation.z + 10.0,
             );
 
@@ -111,7 +141,7 @@ pub fn handle_attack_input(
                 },
                 Sprite {
                     color: Color::srgba(0.9, 0.9, 1.0, 0.9),
-                    custom_size: Some(Vec2::new(28.0, 6.0)),
+                    custom_size: Some(sprite_size),
                     ..default()
                 },
                 Transform::from_translation(spawn_pos)
@@ -126,10 +156,15 @@ pub fn handle_attack_input(
                     start_angle,
                     end_angle,
                     duration: Timer::from_seconds(0.15, TimerMode::Once),
+                    direction,
                 },
             ));
 
-            info!("Attaque slash vers {:?}", side);
+            let dir_name = match direction {
+                AttackDirection::Horizontal => "horizontale",
+                AttackDirection::Up => "haut",
+            };
+            info!("Attaque slash vers {} ", dir_name);
         }
     }
 }
@@ -155,20 +190,28 @@ pub fn animate_slash(
 
         // Suivre la position du joueur
         if let Ok((player_transform, side)) = player_query.get(hitbox.owner) {
-            let offset_x = match *side {
-                Side::Right => 16.0,
-                Side::Left => -16.0,
-            };
+            match animation.direction {
+                AttackDirection::Horizontal => {
+                    let offset_x = match *side {
+                        Side::Right => 16.0,
+                        Side::Left => -16.0,
+                    };
 
-            // Ajuster la position Y pendant l'animation (arc de cercle)
-            let y_offset = 8.0 - (eased_progress * 16.0);
+                    // Ajuster la position Y pendant l'animation (arc de cercle)
+                    let y_offset = 8.0 - (eased_progress * 16.0);
 
-            transform.translation.x = player_transform.translation.x + offset_x;
-            transform.translation.y = player_transform.translation.y + y_offset;
+                    transform.translation.x = player_transform.translation.x + offset_x;
+                    transform.translation.y = player_transform.translation.y + y_offset;
+                }
+                AttackDirection::Up => {
+                    // Pour l'attaque vers le haut, on monte progressivement
+                    let y_offset = 20.0 + (eased_progress * 20.0);
+
+                    transform.translation.x = player_transform.translation.x;
+                    transform.translation.y = player_transform.translation.y + y_offset;
+                }
+            }
         }
-
-        // Effet de fondu à la fin
-        // Note: On pourrait aussi modifier l'alpha du sprite ici
     }
 }
 

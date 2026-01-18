@@ -3,9 +3,10 @@ use bevy_ecs_ldtk::prelude::*;
 use std::fs;
 use std::path::PathBuf;
 
-use crate::entities::player::Player;
 use crate::entities::stats::Stats;
+use crate::world::objects::{IsActive, LeverId};
 use crate::world::save_point::SaveGameEvent;
+use crate::{entities::player::Player, world::objects::Lever};
 
 pub use super::{DeleteSaveEvent, LoadGameEvent, SaveData, SaveSlots};
 
@@ -21,6 +22,10 @@ const LEVELS_WITH_SAVE: [Level; 1] = [Level {
 
 #[derive(Resource, Default)]
 pub struct PendingLoadEvent(pub Option<usize>);
+
+/// Ressource pour tracker si les leviers ont été restaurés
+#[derive(Resource, Default)]
+pub struct LeversRestored(pub bool);
 
 const SAVE_DIRECTORY: &str = "saves";
 const SAVE_FILE_NAME: &str = "savegame.json";
@@ -96,6 +101,7 @@ pub fn handle_save_game(
     mut save_events: EventReader<SaveGameEvent>,
     mut save_slots: ResMut<SaveSlots>,
     player_query: Query<(&Transform, &Stats), With<Player>>,
+    lever_query: Query<(&IsActive, &LeverId), With<Lever>>,
     level_selection: Res<LevelSelection>,
 ) {
     for _ in save_events.read() {
@@ -109,20 +115,40 @@ pub fn handle_save_game(
         // Récupérer l'identifiant du niveau actuel
         let level_id = match level_selection.as_ref() {
             LevelSelection::Identifier(id) => id.clone(),
-            LevelSelection::Uid(uid) => format!("level_{}", uid),
+            LevelSelection::Uid(uid) => uid.to_string(),
             LevelSelection::Iid(iid) => iid.to_string(),
             LevelSelection::Indices(indices) => format!("level_{:?}", indices),
         };
 
-        let save_data = SaveData::new(
+        let level_name = LEVELS_WITH_SAVE
+            .iter()
+            .find(|lvl| lvl.id == level_id.as_str())
+            .map(|lvl| lvl.name)
+            .unwrap_or("Unknown Level")
+            .to_string();
+
+        let mut save_data = SaveData::new(
             player_transform.translation,
-            LEVELS_WITH_SAVE
-                .iter()
-                .find(|lvl| lvl.id == level_id.as_str())
-                .map(|lvl| lvl.name)
-                .unwrap_or("Unknown Level")
-                .to_string(),
+            level_name.clone(),
             player_stats.max_life,
+        );
+
+        info!(
+            "Sauvegarde du jeu au niveau '{}' (ID: {})",
+            level_name, level_id
+        );
+
+        // Capturer l'état des leviers
+        for (is_active, lever_id) in lever_query.iter() {
+            let entity_id = &lever_id.0;
+            save_data
+                .lever_states
+                .insert(entity_id.clone(), is_active.0);
+        }
+
+        info!(
+            "État des leviers sauvegardé: {} leviers",
+            save_data.lever_states.len()
         );
 
         save_slots.slots[slot_index].data = Some(save_data);
@@ -188,6 +214,41 @@ pub fn process_pending_load(
                 info!("Jeu chargé depuis l'emplacement {}", slot_index + 1);
             } else {
                 info!("Joueur toujours pas trouvé dans process_pending_load");
+            }
+        }
+    }
+}
+
+/// Restaure l'état des leviers après chargement (une seule fois)
+pub fn restore_lever_states(
+    save_slots: Res<SaveSlots>,
+    mut lever_query: Query<(&LeverId, &mut IsActive), With<Lever>>,
+    player_query: Query<&Transform, With<Player>>,
+    mut levers_restored: ResMut<LeversRestored>,
+) {
+    // Ne restaurer qu'une seule fois
+    if levers_restored.0 {
+        return;
+    }
+
+    // Vérifier si le joueur existe (niveau chargé)
+    if player_query.get_single().is_ok() {
+        // Chercher si une donnée de sauvegarde est chargée via le pending load
+        if let Some(slot) = save_slots.slots.iter().find(|s| s.data.is_some()) {
+            if let Some(ref save_data) = slot.data {
+                // Mettre à jour l'état de chaque levier
+                for (lever_id, mut is_active) in lever_query.iter_mut() {
+                    if let Some(&saved_state) = save_data.lever_states.get(&lever_id.0) {
+                        is_active.0 = saved_state;
+                        info!(
+                            "Levier restauré - ID: {}, État: {}",
+                            lever_id.0, saved_state
+                        );
+                    }
+                }
+                // Marquer comme restauré
+                levers_restored.0 = true;
+                info!("Restauration des leviers terminée");
             }
         }
     }

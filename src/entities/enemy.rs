@@ -2,11 +2,21 @@ use bevy::prelude::*;
 use bevy_ecs_ldtk::{prelude::*, utils::ldtk_pixel_coords_to_translation_pivoted};
 use bevy_rapier2d::dynamics::Velocity;
 
-use crate::physics::colliders::ColliderBundle;
 use crate::entities::stats::Stats;
+use crate::physics::colliders::ColliderBundle;
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug, Default, Component)]
 pub struct Enemy;
+
+/// Stocke l'IID de l'entité LDtk pour les références
+#[derive(Clone, Default, Component)]
+pub struct EnemyIid(pub String);
+
+impl From<&EntityInstance> for EnemyIid {
+    fn from(entity_instance: &EntityInstance) -> Self {
+        EnemyIid(entity_instance.iid.clone())
+    }
+}
 
 #[derive(Clone, Default, Bundle, LdtkEntity)]
 pub struct EnemyBundle {
@@ -21,6 +31,9 @@ pub struct EnemyBundle {
 
     #[from_entity_instance]
     pub stats: Stats,
+
+    #[from_entity_instance]
+    pub enemy_iid: EnemyIid,
 }
 
 #[derive(Clone, PartialEq, Debug, Default, Component)]

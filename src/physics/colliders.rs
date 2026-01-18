@@ -56,6 +56,13 @@ impl From<&EntityInstance> for ColliderBundle {
                 // density: ColliderMassProperties::Density(100.0),
                 ..Default::default()
             },
+            "Lever" => ColliderBundle {
+                collider: Collider::cuboid(8., 8.),
+                rigid_body: RigidBody::Fixed,
+                rotation_constraints,
+                active_events: ActiveEvents::COLLISION_EVENTS,
+                ..Default::default()
+            },
             _ => ColliderBundle::default(),
         }
     }
@@ -75,6 +82,15 @@ impl From<IntGridCell> for SensorBundle {
 
         // ladder
         if int_grid_cell.value == 2 {
+            SensorBundle {
+                collider: Collider::cuboid(8., 8.),
+                sensor: Sensor,
+                rotation_constraints,
+                active_events: ActiveEvents::COLLISION_EVENTS,
+            }
+        }
+        // water
+        else if int_grid_cell.value == 4 {
             SensorBundle {
                 collider: Collider::cuboid(8., 8.),
                 sensor: Sensor,

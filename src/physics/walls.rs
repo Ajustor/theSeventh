@@ -5,12 +5,24 @@ use bevy_ecs_ldtk::prelude::*;
 
 use bevy_rapier2d::prelude::*;
 
+use super::colliders::SensorBundle;
+
 #[derive(Copy, Clone, Eq, PartialEq, Debug, Default, Component)]
 pub struct Wall;
 
 #[derive(Clone, Debug, Default, Bundle, LdtkIntCell)]
 pub struct WallBundle {
     wall: Wall,
+}
+
+#[derive(Copy, Clone, Eq, PartialEq, Debug, Default, Component)]
+pub struct Water;
+
+#[derive(Clone, Default, Bundle, LdtkIntCell)]
+pub struct WaterBundle {
+    #[from_int_grid_cell]
+    pub sensor_bundle: SensorBundle,
+    pub water: Water,
 }
 
 /// Spawns heron collisions for the walls of a level
@@ -182,16 +194,58 @@ pub fn spawn_wall_collision(
     }
 }
 
+/// Détecte les collisions du joueur avec l'eau
+pub fn detect_water_collision(
+    mut collision_events: EventReader<CollisionEvent>,
+    player_query: Query<Entity, With<crate::entities::player::Player>>,
+    water_query: Query<Entity, With<Water>>,
+    mut damage_events: EventWriter<crate::engine::damage::DamageEvent>,
+) {
+    for collision_event in collision_events.read() {
+        if let CollisionEvent::Started(entity1, entity2, _) = collision_event {
+            // Vérifier si le joueur touche l'eau
+            let (player_entity, is_water) = if let Ok(player) = player_query.get(*entity1) {
+                if water_query.contains(*entity2) {
+                    (player, true)
+                } else {
+                    continue;
+                }
+            } else if let Ok(player) = player_query.get(*entity2) {
+                if water_query.contains(*entity1) {
+                    (player, true)
+                } else {
+                    continue;
+                }
+            } else {
+                continue;
+            };
+
+            if is_water {
+                // Envoyer un événement de dégâts pour tuer le joueur
+                damage_events.send(crate::engine::damage::DamageEvent::new(
+                    player_entity,
+                    Entity::PLACEHOLDER,
+                    999, // Dégâts massifs pour tuer instantanément
+                ));
+                info!("Joueur touche l'eau - mort instantanée!");
+            }
+        }
+    }
+}
+
 /// Plugin which spawns walls on appropriate LDtk int cells,
 /// then merges them together to reduce physics load.
 ///
 /// Walls are hardcoded as int cell values 1 (dirt) and 3 (stone).
+/// L'eau est int cell value 4.
 pub struct WallPlugin;
 
 impl Plugin for WallPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Update, spawn_wall_collision)
+            .add_systems(Update, detect_water_collision)
             .register_ldtk_int_cell::<WallBundle>(1) //dirt
-            .register_ldtk_int_cell::<WallBundle>(3); //stone
+            .register_ldtk_int_cell::<WallBundle>(3) //stone
+            .register_ldtk_int_cell::<WaterBundle>(4); //water
     }
 }

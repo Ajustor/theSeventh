@@ -12,6 +12,9 @@ pub struct SaveData {
     pub inventory: Vec<String>,
     pub timestamp: u64,
     pub play_time_seconds: u64,
+    /// Map de l'état des leviers: (level_id, lever_entity_id) -> is_active
+    #[serde(default)]
+    pub lever_states: std::collections::HashMap<String, bool>,
 }
 
 impl SaveData {
@@ -28,6 +31,7 @@ impl SaveData {
             inventory: Vec::new(),
             timestamp,
             play_time_seconds: 0,
+            lever_states: std::collections::HashMap::new(),
         }
     }
 
