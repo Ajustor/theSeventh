@@ -174,20 +174,6 @@ pub fn spawn_game_start_menu(mut commands: Commands, save_slots: Res<SaveSlots>)
                             ));
                         });
                 });
-
-            // Instructions
-            parent.spawn((
-                Text::new("Échap: Retour"),
-                TextFont {
-                    font_size: 16.0,
-                    ..default()
-                },
-                TextColor(Color::srgb(0.6, 0.6, 0.6)),
-                Node {
-                    margin: UiRect::top(Val::Px(40.0)),
-                    ..default()
-                },
-            ));
         });
 }
 
@@ -214,7 +200,8 @@ pub fn game_start_menu_interaction(
     save_slots: Res<SaveSlots>,
     mut next_game_start_state: ResMut<NextState<GameStartMenuState>>,
     mut next_save_menu_state: ResMut<NextState<SaveMenuState>>,
-    mut next_game_state: ResMut<NextState<crate::GameState>>,
+    mut next_game_state: ResMut<NextState<GameState>>,
+    game_start_state: Res<State<GameStartMenuState>>,
     mut new_game_event: EventWriter<StartNewGameEvent>,
 ) {
     let has_saves = save_slots.slots.iter().any(|s| s.data.is_some());
@@ -239,9 +226,14 @@ pub fn game_start_menu_interaction(
                 }
 
                 if back.is_some() {
+                    match game_start_state.get() {
+                        GameStartMenuState::Open => {
+                            next_game_state.set(GameState::Menu);
+                        }
+                        _ => {}
+                    };
                     next_game_start_state.set(GameStartMenuState::Closed);
-                    next_save_menu_state.set(SaveMenuState::Open);
-                    next_game_state.set(GameState::Menu);
+                    next_save_menu_state.set(SaveMenuState::Closed);
                 }
             }
             Interaction::Hovered => {

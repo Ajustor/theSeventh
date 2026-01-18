@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use super::{
     DeleteSaveEvent, GameStartMenuState, LoadGameEvent, SaveMenuState, SaveSlots, MAX_SAVE_SLOTS,
 };
-use crate::world::save_point::SaveGameEvent;
+use crate::{world::save_point::SaveGameEvent, GameState};
 
 #[derive(Component)]
 pub struct SaveMenuRoot;
@@ -185,7 +185,7 @@ pub fn spawn_save_menu(mut commands: Commands, save_slots: Res<SaveSlots>) {
                 ))
                 .with_children(|button| {
                     button.spawn((
-                        Text::new("Retour (Échap)"),
+                        Text::new("Retour"),
                         TextFont {
                             font_size: 20.0,
                             ..default()
@@ -219,6 +219,7 @@ pub fn save_menu_interaction(
     mut delete_event: EventWriter<DeleteSaveEvent>,
     mut next_save_state: ResMut<NextState<SaveMenuState>>,
     mut next_start_state: ResMut<NextState<GameStartMenuState>>,
+    mut next_game_state: ResMut<NextState<GameState>>,
 ) {
     for (interaction, mut color, slot_button, delete_button, close_button) in &mut interaction_query
     {
@@ -256,6 +257,7 @@ pub fn save_menu_interaction(
                     // Retour au menu de démarrage
                     next_save_state.set(SaveMenuState::Closed);
                     next_start_state.set(GameStartMenuState::Open);
+                    next_game_state.set(GameState::Menu);
                 }
             }
             Interaction::Hovered => {
